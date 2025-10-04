@@ -1,4 +1,4 @@
-import "@workspace/ui/globals.css"
+import "@/styles/globals.css";
 import { Providers } from "@/components/providers"
 
 export default function RootLayout({

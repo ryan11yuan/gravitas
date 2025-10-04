@@ -3,8 +3,8 @@ import {
   CrowdmarkCourse,
   CrowdmarkCourseStatistics,
   CrowdmarkResponse,
-} from "@/types/crowdmark";
-import { ApiResponse, fetchWithExtension } from "@/utils/extension-client";
+} from "@/common/types/crowdmark";
+import { ApiResponse, fetchWithExtension } from "@/lib/extension-client";
 
 const BASE_URL = "https://app.crowdmark.com";
 

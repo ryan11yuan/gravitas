@@ -1,5 +1,5 @@
-import { ApiResponse, fetchWithExtension } from "@/utils/extension-client";
-import { QuercusAssignment, QuercusCourse, QuercusUser } from "@/types/quercus";
+import { ApiResponse, fetchWithExtension } from "@/lib/extension-client";
+import { QuercusAssignment, QuercusCourse, QuercusUser } from "@/common/types/quercus";
 
 const BASE_URL = "https://q.utoronto.ca";
 

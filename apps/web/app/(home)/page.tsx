@@ -1,208 +1,292 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import LiquidEther from "./_components/liquid-either";
-import { ChevronDown, LogIn, CheckCircle2 } from "lucide-react";
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card";
+import LiquidEther from "@workspace/ui/components/liquid-ether";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  CircleAlert,
+  LogIn,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import Link from "next/link";
-import { isAuthenticated as isQuercusAuthenticated } from "@/integrations/quercus";
-import { isAuthenticated as isCrowdmarkAuthenticated } from "@/integrations/crowdmark";
+import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function LandingPage() {
-  const learnRef = useRef<HTMLDivElement | null>(null);
-  const [quercusSignedIn, setQuercusSignedIn] = useState(false);
-  const [crowdmarkSignedIn, setCrowdmarkSignedIn] = useState(false);
+import { isAuthenticated as isCrowdmarkAuthenticated } from "@/lib/crowdmark-client";
+import { isAuthenticated as isQuercusAuthenticated } from "@/lib/quercus-client";
+import { cn } from "@workspace/ui/lib/utils";
+
+export default function Page() {
+  const [quercusAuthed, setQuercusAuthed] = useState<boolean | null>(null);
+  const [crowdmarkAuthed, setCrowdmarkAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const quercusRes = await isQuercusAuthenticated();
-      if (quercusRes.success && quercusRes.data) setQuercusSignedIn(true);
-
-      const crowdmarkRes = await isCrowdmarkAuthenticated();
-      if (crowdmarkRes.success && crowdmarkRes.data) setCrowdmarkSignedIn(true);
+      try {
+        const q = await isQuercusAuthenticated();
+        setQuercusAuthed(Boolean(q?.success && q?.data));
+      } catch {
+        setQuercusAuthed(false);
+      }
+      try {
+        const c = await isCrowdmarkAuthenticated();
+        setCrowdmarkAuthed(Boolean(c?.success && c?.data));
+      } catch {
+        setCrowdmarkAuthed(false);
+      }
     };
     checkAuth();
   }, []);
 
-  const scrollToLearn = () => {
-    learnRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const bothConnected = quercusAuthed === true && crowdmarkAuthed === true;
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Background */}
-      <div className="fixed inset-0 z-0">
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
-          <LiquidEther
-            colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
-            mouseForce={20}
-            cursorSize={100}
-            isViscous={false}
-            viscous={30}
-            iterationsViscous={32}
-            iterationsPoisson={32}
-            resolution={0.6}
-            isBounce={false}
-            autoDemo
-            autoSpeed={0.5}
-            autoIntensity={2.2}
-            takeoverDuration={0.25}
-            autoResumeDelay={0}
-            autoRampDuration={0.6}
-          />
-        </div>
-        <div className="pointer-events-none absolute inset-0 bg-white/6" />
+    <div className="relative min-h-screen overflow-hidden container">
+      <div className="absolute inset-0 -z-10">
+        <LiquidEther
+          colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
+          mouseForce={20}
+          cursorSize={100}
+          isViscous={false}
+          viscous={30}
+          iterationsViscous={32}
+          iterationsPoisson={32}
+          resolution={0.5}
+          isBounce={false}
+          autoDemo={true}
+          autoSpeed={0.5}
+          autoIntensity={2.2}
+          takeoverDuration={0.25}
+          autoResumeDelay={100}
+          autoRampDuration={0.6}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_40%,transparent_0%,transparent_50%,rgba(0,0,0,0.6)_100%)]" />
       </div>
 
-      {/* HERO */}
-      <main className="relative z-10">
-        <section className="max-w-5xl mx-auto px-6 pt-28 pb-20 text-center font-sf">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">
-            <span className="opacity-80">Productivity for students</span>
-          </div>
+      <div>
+        {/* Hero */}
+        <main className="min-h-screen mx-auto flex max-w-4xl flex-col items-center justify-center px-6 text-center">
+          <Badge variant="outline" className="mb-6 gap-2">
+            <Wand2 className="h-3.5 w-3.5" />
+            Education Reimagined
+          </Badge>
 
-          <h1 className="mt-6 text-4xl md:text-6xl font-semibold leading-[1.1] tracking-tight">
-            See what matters. Do it
-            <br className="hidden md:block" />
-            <span className="inline-block"> first.</span>
+          <h1 className="mx-auto text-balance text-4xl font-bold leading-tight tracking-[-0.02em] sm:text-5xl md:text-6xl">
+            The web, made fluid at your
+            <br />
+            fingertips.
           </h1>
 
-          <p className="mt-5 text-zinc-300/80 max-w-2xl mx-auto">
-            Gravitas orders your workload by urgency and difficulty 
-            so your effort hits the biggest grade gains.
-          </p>
-
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <Link
-              href="/dashboard"
-              className="rounded-full bg-white text-black px-6 py-3 text-sm font-semibold hover:bg-zinc-200 transition-colors"
+          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+            <Button size="lg">
+              Install Chrome Extension <ChevronRight />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => redirect("#steps")}
             >
-              Get Started
-            </Link>
-
-            <button
-              onClick={scrollToLearn}
-              className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm text-white/90 hover:border-white/20 transition-colors"
-            >
-              Learn More
-            </button>
+              Get Started <ChevronDown />
+            </Button>
           </div>
+        </main>
 
-          <button
-            onClick={scrollToLearn}
-            className="mt-14 inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
-          >
-            <ChevronDown className="h-5 w-5" />
-            <span>Scroll</span>
-          </button>
-        </section>
-
-        {/* REQUIREMENTS / LOGIN SECTION */}
-        <section
-          ref={learnRef}
-          className="h-screen relative z-10 border-t border-white/10 bg-black/30 backdrop-blur-xl"
-        >
-          <div className="max-w-5xl mx-auto px-6 py-16 font-sf">
-            <h2 className="text-2xl md:text-3xl font-semibold">Before you begin</h2>
-            <p className="mt-3 text-zinc-400 max-w-2xl">
-              To import assignments and compute priorities, please make sure
-              you&apos;re signed into both{" "}
-              <span className="text-white/90">Quercus</span> and{" "}
-              <span className="text-white/90">Crowdmark</span>.
+        {/* Steps */}
+        <section id="steps" className="mx-auto mb-40 max-w-4xl px-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Getting set up
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Connect your accounts, then launch the app.
             </p>
+          </div>
 
-            <div className="mt-8 grid md:grid-cols-3 gap-4">
-              {/* Quercus */}
-              <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
-                <h3 className="text-lg font-semibold">Quercus</h3>
-                <p className="mt-2 text-sm text-zinc-400">
-                  Connect to sync courses, due dates, and posted assignments.
-                </p>
-
-                {quercusSignedIn ? (
-                  <button
-                    disabled
-                    aria-label="Quercus connected"
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-black px-4 py-2 text-sm font-semibold cursor-default"
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Step 1: Quercus */}
+            <Card
+              className={cn(
+                "flex flex-col transition-colors",
+                quercusAuthed && "border-green-500/40 bg-green-500/10"
+              )}
+            >
+              <CardHeader className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Badge
+                    variant={quercusAuthed ? "default" : "outline"}
+                    className={cn(
+                      "gap-1",
+                      quercusAuthed && "bg-green-600 text-white"
+                    )}
                   >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Connected
-                  </button>
+                    {quercusAuthed ? (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Connected
+                      </>
+                    ) : (
+                      <>
+                        <CircleAlert className="h-3.5 w-3.5" />
+                        Not connected
+                      </>
+                    )}
+                  </Badge>
+
+                  <span className="text-xs text-muted-foreground">Step 1</span>
+                </div>
+
+                <CardTitle>Login to Quercus</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Authorize access so we can pull your course list and due dates
+                  securely.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent>
+                <div className="text-sm text-muted-foreground">
+                  Status:
+                  <b>
+                    {" "}
+                    {quercusAuthed === null
+                      ? "Checking..."
+                      : quercusAuthed
+                        ? "Signed in"
+                        : "Not signed in"}
+                  </b>
+                </div>
+              </CardContent>
+
+              <CardFooter className="mt-auto justify-between">
+                <div className="text-xs text-muted-foreground">
+                  Uses your existing Quercus session via the extension.
+                </div>
+
+                {quercusAuthed ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="https://q.utoronto.ca/" target="_blank">
+                      Manage
+                    </Link>
+                  </Button>
                 ) : (
-                  <Link
-                    href="https://q.utoronto.ca" /* TODO: adjust to your auth route */
-                    target="_blank"
-                    aria-label="Sign in to Quercus"
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 hover:border-white/20"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    Sign in to Quercus
-                  </Link>
+                  <Button size="sm" asChild>
+                    {/* Replace with your actual auth route */}
+                    <Link href="https://q.utoronto.ca/" target="_blank">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Sign in
+                    </Link>
+                  </Button>
                 )}
-              </div>
+              </CardFooter>
+            </Card>
 
-              {/* Crowdmark */}
-              <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
-                <h3 className="text-lg font-semibold">Crowdmark</h3>
-                <p className="mt-2 text-sm text-zinc-400">
-                  Pull grades and feedback to calibrate difficulty scores.
-                </p>
-
-                {crowdmarkSignedIn ? (
-                  <button
-                    disabled
-                    aria-label="Crowdmark connected"
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-black px-4 py-2 text-sm font-semibold cursor-default"
+            {/* Step 2: Crowdmark */}
+            <Card
+              className={cn(
+                "flex flex-col transition-colors",
+                crowdmarkAuthed && "border-green-500/40 bg-green-500/10"
+              )}
+            >
+              <CardHeader className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Badge
+                    variant={crowdmarkAuthed ? "default" : "outline"}
+                    className={cn(
+                      "gap-1",
+                      crowdmarkAuthed && "bg-green-600 text-white"
+                    )}
                   >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Connected
-                  </button>
+                    {crowdmarkAuthed ? (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Connected
+                      </>
+                    ) : (
+                      <>
+                        <CircleAlert className="h-3.5 w-3.5" />
+                        Not connected
+                      </>
+                    )}
+                  </Badge>
+
+                  <span className="text-xs text-muted-foreground">Step 2</span>
+                </div>
+
+                <CardTitle>Login to Crowdmark</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Link your account to fetch assignments and class averages.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent>
+                <div className="text-sm text-muted-foreground">
+                  Status:
+                  <b>
+                    {" "}
+                    {crowdmarkAuthed === null
+                      ? "Checking..."
+                      : crowdmarkAuthed
+                        ? "Signed in"
+                        : "Not signed in"}
+                  </b>
+                </div>
+              </CardContent>
+
+              <CardFooter className="mt-auto justify-between">
+                <div className="text-xs text-muted-foreground">
+                  Securely reads only what's needed for your dashboard.
+                </div>
+
+                {crowdmarkAuthed ? (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link
+                      href="https://app.crowdmark.com/student/courses"
+                      target="_blank"
+                    >
+                      Manage
+                    </Link>
+                  </Button>
                 ) : (
-                  <Link
-                    href="https://app.crowdmark.com/sign-in/utoronto" /* TODO: adjust to your auth route */
-                    aria-label="Sign in to Crowdmark"
-                    target="_blank"
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 hover:border-white/20"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    Sign in to Crowdmark
-                  </Link>
+                  <Button size="sm" asChild>
+                    <Link
+                      href="https://app.crowdmark.com/sign-in/utoronto"
+                      target="_blank"
+                    >
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Sign in
+                    </Link>
+                  </Button>
                 )}
-              </div>
+              </CardFooter>
+            </Card>
+          </div>
 
-              {/* Optional: Status summary card */}
-              <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
-                <h3 className="text-lg font-semibold">Status</h3>
-                <p className="mt-2 text-sm text-zinc-400">
-                  {quercusSignedIn ? "Quercus connected" : "Quercus not connected"}
-                  {" • "}
-                  {crowdmarkSignedIn ? "Crowdmark connected" : "Crowdmark not connected"}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-10">
-              <Link
-                href="/dashboard"
-                className="inline-block rounded-full bg-white text-black px-6 py-3 text-sm font-semibold hover:bg-zinc-200 transition-colors"
-              >
-                Continue to app
+          {/* Proceed */}
+          <div className="mt-6 flex items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              {bothConnected
+                ? "You're all set—launch the app."
+                : "Connect both services to continue."}
+            </p>
+            <Button size="lg" disabled={!bothConnected} asChild>
+              <Link href={bothConnected ? "/app" : "#steps"}>
+                Proceed to app <ChevronRight />
               </Link>
-            </div>
+            </Button>
           </div>
         </section>
-      </main>
-
-      {/* SF Pro utility */}
-      <style>{`
-        .font-sf {
-          font-family:
-            "SF Pro", "SF Pro Text", "SF Pro Display",
-            -apple-system, BlinkMacSystemFont, "Segoe UI",
-            Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue",
-            Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-            sans-serif;
-        }
-      `}</style>
+      </div>
     </div>
   );
 }
