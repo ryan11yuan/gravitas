@@ -253,7 +253,7 @@ export default function GravitasApp() {
     <div className="min-h-screen bg-black text-white">
 
       {/* Header */}
-      <header className="border-b border-zinc-900/50 backdrop-blur-xl bg-black/50 sticky top-0 z-50">
+      <header className="sticky top-0 z-50 border-b border-zinc-800/50 bg-zinc-900/10 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <h1 className="text-2xl font-light tracking-tight">gravitas</h1>
         </div>
@@ -271,7 +271,7 @@ export default function GravitasApp() {
         <div className="mb-4 flex items-center gap-3 relative z-40">
           {/* <— add relative z-40 */}
           {/* Search */}
-          <div className="relative flex-1 max-w-xl">
+          <div className="relative flex-1 max-w-100px">
             <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <input
               value={query}
