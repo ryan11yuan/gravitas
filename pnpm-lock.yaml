@@ -26,9 +26,6 @@ importers:
 
   apps/extension:
     dependencies:
-      '@workspace/quercus-client':
-        specifier: workspace:*
-        version: link:../../packages/quercus-client
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -72,9 +69,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@workspace/quercus-client':
-        specifier: workspace:*
-        version: link:../../packages/quercus-client
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -154,15 +148,6 @@ importers:
       typescript-eslint:
         specifier: ^8.39.0
         version: 8.45.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3)
-
-  packages/quercus-client:
-    devDependencies:
-      '@workspace/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      typescript:
-        specifier: latest
-        version: 5.9.3
 
   packages/typescript-config: {}
 

@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@workspace/ui": "workspace:*",
-    "@workspace/quercus-client": "workspace:*",
     "lucide-react": "^0.475.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
