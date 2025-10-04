@@ -5,6 +5,7 @@ import {
   getCourses as getQuercusCourses,
   getUser,
   isAuthenticated as isQuercusAuthenticated,
+  getCourseAssignments, // ⬅️ add this
 } from "@/integrations/quercus";
 
 import {
@@ -19,8 +20,13 @@ import { CrowdmarkCourse, CrowdmarkAssignment } from "@/types/crowdmark";
 export default function DebugPage() {
   const [quercusUser, setQuercusUser] = useState<QuercusUser | null>(null);
   const [quercusCourses, setQuercusCourses] = useState<QuercusCourse[]>([]);
-  const [crowdmarkCourses, setCrowdmarkCourses] = useState<CrowdmarkCourse[]>([]);
-  const [crowdmarkAssignments, setCrowdmarkAssignments] = useState<CrowdmarkAssignment[]>([]);
+  const [crowdmarkCourses, setCrowdmarkCourses] = useState<CrowdmarkCourse[]>(
+    []
+  );
+  const [crowdmarkAssignments, setCrowdmarkAssignments] = useState<
+    CrowdmarkAssignment[]
+  >([]);
+  const [quercusAssignments, setQuercusAssignments] = useState<any[]>([]);
 
   const [quercusAuth, setQuercusAuth] = useState<boolean | null>(null);
   const [crowdmarkAuth, setCrowdmarkAuth] = useState<boolean | null>(null);
@@ -44,11 +50,24 @@ export default function DebugPage() {
 
         // Quercus Courses
         const qCoursesRes = await getQuercusCourses();
-        if (qCoursesRes.success && qCoursesRes.data) setQuercusCourses(qCoursesRes.data);
+        if (qCoursesRes.success && qCoursesRes.data)
+          setQuercusCourses(qCoursesRes.data);
+
+        if (
+          qCoursesRes.success &&
+          qCoursesRes.data &&
+          qCoursesRes.data.length > 0 &&
+          qCoursesRes.data[0]
+        ) {
+          const firstCourseId = qCoursesRes.data[0].id;
+          const qaRes = await getCourseAssignments(firstCourseId);
+          if (qaRes.success && qaRes.data) setQuercusAssignments(qaRes.data);
+        }
 
         // Crowdmark Courses
         const cCoursesRes = await getCrowdmarkCourses();
-        if (cCoursesRes.success && cCoursesRes.data) setCrowdmarkCourses(cCoursesRes.data);
+        if (cCoursesRes.success && cCoursesRes.data)
+          setCrowdmarkCourses(cCoursesRes.data);
 
         // Crowdmark Assignments (for first course if available)
         if (
@@ -69,7 +88,13 @@ export default function DebugPage() {
     load();
   }, []);
 
-  const Badge = ({ label, status }: { label: string; status: boolean | null }) => {
+  const Badge = ({
+    label,
+    status,
+  }: {
+    label: string;
+    status: boolean | null;
+  }) => {
     let color = "gray";
     let text = "Checking...";
     if (status === true) {
@@ -112,6 +137,9 @@ export default function DebugPage() {
 
       <h2>Quercus Courses</h2>
       <pre>{JSON.stringify(quercusCourses, null, 2)}</pre>
+
+      <h2>Quercus Assignments</h2>
+      <pre>{JSON.stringify(quercusAssignments, null, 2)}</pre>
 
       <h2>Crowdmark Courses</h2>
       <pre>{JSON.stringify(crowdmarkCourses, null, 2)}</pre>
