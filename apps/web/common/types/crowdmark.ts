@@ -31,17 +31,17 @@ export interface CrowdmarkAssignment {
   type: "assignments";
   attributes: {
     "submitted-at": string | null;
-    "retrieved-at": string;
-    "penalty-period": string; // e.g. "day"
-    "penalty-value": number;
-    due: string; // ISO datetime
+    "retrieved-at": string;                 // ISO8601, sometimes with offset
+    "penalty-period": string;               // e.g., "day"
+    "penalty-value": number;                // e.g., 100
+    due: string;                            // ISO8601 (Z or offset)
     "marks-sent-at": string | null;
     "is-locked": boolean;
-    "normalized-points": number | string; // sometimes numeric, sometimes string
+    "normalized-points": number | string;   // can be number (0) or string ("1.0")
     "group-id": number;
     "is-part-of-group": boolean;
     "populate-exam-questions-id": string | null;
-    "score-uuid": string | null;
+    "score-uuid": string | null;            // may be a UUID or a non-UUID string (e.g., "nope")
     "additional-instructions": string | null;
     "is-facilitator": boolean;
     "penalty-override": string | null;
@@ -50,17 +50,17 @@ export interface CrowdmarkAssignment {
     "exam-master": {
       data: {
         type: "exam-masters";
-        id: string;
+        id: string;                         // e.g., "tutorial-exercise-4-e8511"
       };
     };
     course: {
       meta: {
-        included: boolean;
+        included: boolean;                  // false in your sample
       };
     };
     questions: {
       meta: {
-        included: boolean;
+        included: boolean;                  // false in your sample
       };
     };
   };
@@ -73,8 +73,24 @@ export interface CrowdmarkExamMaster {
   id: string;
   type: "exam-masters";
   attributes: {
-    title: string;
-    type: string; // e.g. "ExamMaster::AtHome"
+    title: string;                          // e.g., "tutorial exercise 4"
+    type: string;                           // e.g., "ExamMaster::AtHome"
+  };
+}
+
+/**
+ * Response shape for the assignments list endpoint that returns:
+ * - data: assignments[]
+ * - included: exam-masters[]
+ * - meta: can be empty object
+ * - jsonapi: version
+ */
+export interface CrowdmarkAssignmentsResponse {
+  data: CrowdmarkAssignment[];
+  included?: CrowdmarkExamMaster[];         // present in your sample
+  meta: Record<string, unknown>;            // {} in your sample
+  jsonapi: {
+    version: string;                        // "1.0" in your sample
   };
 }
 

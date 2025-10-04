@@ -34,19 +34,6 @@ export default function Dates() {
             </div>
           ))}
         </div>
-        {/* {assignments.map((a, i) => (
-          <a
-            key={`${a.course}-${i}`}
-            href={a.href ?? "#"}
-            title={`${a.title} • ${a.course}`}
-            className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground block border-t last:border-b-0 px-2 py-1.5"
-          >
-            <div className="flex flex-col gap-0.5 leading-snug">
-              <span className="font-medium text-[13px] truncate">{a.title}</span>
-              <span className="text-[11px] text-muted-foreground truncate">{a.course}</span>
-            </div>
-          </a>
-        ))} */}
       </SidebarGroupContent>
     </SidebarGroup>
   );

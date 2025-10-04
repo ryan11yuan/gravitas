@@ -21,6 +21,7 @@ import { AppSidebar } from "./_components/app-sidebar";
 import { QuercusUser } from "@/common/types/quercus";
 import { Badge } from "@workspace/ui/components/badge";
 import { Check } from "lucide-react";
+import AssignmentList from "./_components/assignment-list";
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
@@ -78,16 +79,23 @@ export default function Page() {
     <SidebarProvider>
       <AppSidebar user={user!} />
       <SidebarInset>
-        <header className="bg-background sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between">
+        <header
+          className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 
+  bg-background/70 backdrop-blur-md"
+        >
           <SidebarTrigger className="-ml-1" />
           <div className="flex gap-2">
-
-          <Badge className="bg-red-900/30"> Connected to Quercus <Check/></Badge>
-          <Badge className="bg-blue-900/30"> Crowdmark <Check/></Badge>
+            <Badge className="bg-red-900/30">
+              Connected to Quercus <Check />
+            </Badge>
+            <Badge className="bg-blue-900/30">
+              Crowdmark <Check />
+            </Badge>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
-          <h3>Assignment </h3>
+          <h3 className="text-2xl font-medium">Assignments</h3>
+          <AssignmentList />
         </div>
       </SidebarInset>
     </SidebarProvider>

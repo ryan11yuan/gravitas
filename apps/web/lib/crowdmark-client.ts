@@ -1,5 +1,6 @@
 import {
   CrowdmarkAssignment,
+  CrowdmarkAssignmentsResponse,
   CrowdmarkCourse,
   CrowdmarkCourseStatistics,
   CrowdmarkResponse,
@@ -42,8 +43,8 @@ export async function getCrowdmarkCourses(): Promise<ApiResponse<CrowdmarkCourse
 
 export async function getCrowdmarkAssignments(
   courseId: string
-): Promise<ApiResponse<CrowdmarkAssignment[]>> {
-  return fetchWithExtension<CrowdmarkAssignment[]>(
+): Promise<ApiResponse<CrowdmarkAssignmentsResponse>> {
+  return fetchWithExtension<CrowdmarkAssignmentsResponse>(
     `${BASE_URL}/api/v2/student/assignments?fields[exam-masters][]=type&fields[exam-masters][]=title&filter[course]=${courseId}`
   );
 }
