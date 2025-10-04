@@ -54,7 +54,7 @@ export default function AssignmentList() {
   // --- Render states ---
   if (!assignments && !error) {
     return (
-      <div className="max-w-4xl space-y-3">
+      <div className="max-w-5xl space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-900/40 border border-zinc-800/60" />
         ))}
@@ -64,14 +64,14 @@ export default function AssignmentList() {
 
   if (error) {
     return (
-      <div className="max-w-4xl rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+      <div className="max-w-5xl rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-destructive">
         {error}
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl space-y-3">
+    <div className="max-w-5xl space-y-3">
       <ControlsBar
         query={query}
         setQuery={setQuery}
