@@ -61,14 +61,14 @@ export default function LandingPage() {
           </div>
 
           <h1 className="mt-6 text-4xl md:text-6xl font-semibold leading-[1.1] tracking-tight">
-            The web, made fluid at your
+            See what matters. Do it
             <br className="hidden md:block" />
-            <span className="inline-block"> fingertips.</span>
+            <span className="inline-block"> first.</span>
           </h1>
 
           <p className="mt-5 text-zinc-300/80 max-w-2xl mx-auto">
-            Gravitas ranks your assignments by urgency and difficulty—so you
-            focus on what moves your grade the most.
+            Gravitas orders your workload by urgency and difficulty 
+            so your effort hits the biggest grade gains.
           </p>
 
           <div className="mt-8 flex items-center justify-center gap-3">
