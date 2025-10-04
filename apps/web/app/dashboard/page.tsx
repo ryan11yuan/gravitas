@@ -33,7 +33,12 @@ type AssignmentCardProps = {
   onToggle: () => void;
 };
 
-const AssignmentCard: React.FC<AssignmentCardProps> = ({ assignment, rank, isExpanded, onToggle }) => {
+const AssignmentCard: React.FC<AssignmentCardProps> = ({
+  assignment,
+  rank,
+  isExpanded,
+  onToggle,
+}) => {
   const diffStyles = {
     Easy: {
       text: "text-green-400",
@@ -234,7 +239,8 @@ export default function GravitasApp() {
     const parseDue = (s: string | number | Date) => new Date(s); // relies on readable date strings
     const sorted = [...filtered].sort((a, b) => {
       if (sortKey === "score") return b.score - a.score; // high → low
-      if (sortKey === "due") return parseDue(a.due).getTime() - parseDue(b.due).getTime(); // soonest first
+      if (sortKey === "due")
+        return parseDue(a.due).getTime() - parseDue(b.due).getTime(); // soonest first
       if (sortKey === "title") return a.title.localeCompare(b.title);
       return 0;
     });
@@ -245,29 +251,6 @@ export default function GravitasApp() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* === Background (LiquidEther) === */}
-      <div className="fixed inset-0 -z-0">
-        <div style={{ width: "100%", height: "100%", position: "relative" }}>
-          <LiquidEther
-            colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
-            mouseForce={20}
-            cursorSize={100}
-            isViscous={false}
-            viscous={40}
-            iterationsViscous={32}
-            iterationsPoisson={32}
-            resolution={0.5}
-            isBounce={true}
-            autoDemo={true} 
-            autoSpeed={0.1}
-            autoIntensity={2.4}
-            takeoverDuration={0.25}
-            autoResumeDelay={1000}
-            autoRampDuration={0.6}
-          />
-        </div>
-        <div className="absolute inset-0 pointer-events-none" />
-      </div>
 
       {/* Header */}
       <header className="border-b border-zinc-900/50 backdrop-blur-xl bg-black/50 sticky top-0 z-50">
