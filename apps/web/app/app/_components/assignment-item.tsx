@@ -7,11 +7,36 @@ import type { BaseAssignment } from "@/lib/assignments";
 import { formatDue } from "../_utils/format";
 import { extractText } from "@/lib/content-extraction";
 
-export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: number }) {
+type AIEstimate = {
+  /** 0–100 numeric difficulty from Gemini */
+  score: number;
+  /** mapped level label (we’ll derive if not provided) */
+  level?: "Easy" | "Medium" | "Hard";
+  /** estimated time to complete (in hours) */
+  etaHours?: number;
+  /** model summary/explanation */
+  summary?: string;
+};
+
+export default function AssignmentItem({
+  a,
+  rank,
+  ai,
+}: {
+  a: BaseAssignment;
+  rank: number;
+  ai?: AIEstimate; 
+}) {
   const [open, setOpen] = useState(false);
 
-  const score = computePriorityScore(a.dueAt, a.points);
-  const difficulty = pickDifficultyFromScore(score);
+  // If AI score exists, prefer it; else fall back to your local priority score
+  const score = typeof ai?.score === "number" ? Math.round(ai.score) : computePriorityScore(a.dueAt, a.points);
+
+  // Pick difficulty label from AI score (or use provided ai.level), else from local score
+  const difficulty =
+    ai?.level ??
+    pickDifficultyFromScore(typeof ai?.score === "number" ? ai.score : score);
+
   const dueText = formatDue(a.dueAt) ? formatDue(a.dueAt) : "No due date";
   const srcLabel = a.src === "quercus" ? "Quercus assignment" : "Crowdmark assignment";
 
@@ -49,23 +74,24 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
       className={`ml-5 group relative cursor-pointer select-none rounded-2xl border border-zinc-800/70 bg-zinc-950/70
       backdrop-blur-sm transition-colors hover:border-zinc-700/70
       p-5 md:p-6 pl-7 md:pl-8 ${colors[difficulty].bar}`}
+
     >
       {/* header */}
       <div className="flex items-stretch justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-3">
-          
+
           {/* # ranking */}
           <div className="shrink-0 grid place-items-center rounded-xl border border-zinc-800/70 bg-zinc-900/60 px-2.5 py-1.5 text-[11px] text-zinc-300">
             <span className="font-medium">#{rank}</span>
           </div>
 
-            {/* title */}
+          {/* title & meta */}
           <div className="min-w-0 flex-1 pl-1.5 md:pl-2">
             <div className="text-[17px] md:text-[20px] font-semibold text-zinc-50 leading-snug truncate">
               {a.title}
             </div>
 
-            {/* course & difficulty category (ez, med, hard) */}
+            {/* course & difficulty chip */}
             <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px]">
               <span className="truncate text-zinc-400">{a.course}</span>
               <span
@@ -75,23 +101,30 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
               </span>
             </div>
 
-            {/* due date & scheduled*/}
+            {/* due date & ETA */}
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-zinc-400">
               <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
                 <Calendar className="h-3.5 w-3.5" />
                 <span className="tabular-nums">{dueText}</span>
               </span>
+
               <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
                 <Clock className="h-3.5 w-3.5" />
                 <span>{a.dueAt ? "Scheduled" : "TBD"}</span>
               </span>
+
+              {typeof ai?.etaHours === "number" && (
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span className="tabular-nums">ETA ~{Math.max(0, ai.etaHours).toFixed(1)}h</span>
+                </span>
+              )}
             </div>
 
-            {/* description */}
+            {/* description / AI summary */}
             <p className="mt-2 text-[13px] leading-snug text-zinc-400 line-clamp-2">
-              {extractText(a.description?.trim() ?? "") || srcLabel}
+              {ai?.summary?.trim() || extractText(a.description?.trim() ?? "") || srcLabel}
             </p>
-
           </div>
         </div>
 
@@ -101,10 +134,9 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
             <span className="text-xl font-extrabold tabular-nums">{score}</span>
           </div>
         </div>
-
       </div>
 
-      {/* expandable - your grade and class average*/}
+      {/* expandable - your grade and class average */}
       <div
         id={sectionId}
         className={`ml-15 overflow-hidden transition-[grid-template-rows,opacity] duration-200 ease-out ${
@@ -114,7 +146,6 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
         <div className="min-h-0">
           <hr className="my-4 border-zinc-800/70" />
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-
             {/* your grade */}
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm text-zinc-400">
@@ -135,7 +166,6 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
               <div className="text-2xl font-semibold text-zinc-100">
                 <span className="tabular-nums">{classAvg}</span>
               </div>
-
             </div>
           </div>
         </div>
