@@ -14,7 +14,7 @@ export type ApiResponse<T> = {
 
 export type FetchViaExtensionOptions = RequestInit & { parseJson?: boolean };
 
-const EXT_ID = "joohgngcbndicekednngailbfoabdbmn";
+const EXT_ID = process.env.EXT_ID;
 
 /**
  * Low-level raw call through the extension.
