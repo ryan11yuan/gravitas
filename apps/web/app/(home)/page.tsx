@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import LiquidEther from "@workspace/ui/components/liquid-ether";
+// import LiquidEther from "@workspace/ui/components/liquid-ether";
 import {
   CheckCircle2,
   ChevronDown,
@@ -56,7 +56,7 @@ export default function Page() {
   return (
     <div className="relative min-h-screen overflow-hidden container">
       <div className="absolute inset-0 -z-10">
-        <LiquidEther
+        {/* <LiquidEther
           colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
           mouseForce={20}
           cursorSize={100}
@@ -72,7 +72,7 @@ export default function Page() {
           takeoverDuration={0.25}
           autoResumeDelay={100}
           autoRampDuration={0.6}
-        />
+        /> */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_40%,transparent_0%,transparent_50%,rgba(0,0,0,0.6)_100%)]" />
       </div>
 
