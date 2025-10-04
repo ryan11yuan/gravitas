@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@google/genai": "^1.22.0",
     "@google/generative-ai": "^0.24.1",
     "@workspace/ui": "workspace:*",
     "lucide-react": "^0.475.0",

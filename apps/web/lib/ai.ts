@@ -47,9 +47,11 @@ export async function analyzeAssignment(
       responseSchema: {
         type: SchemaType.OBJECT,
         properties: {
-          summary: { type: SchemaType.STRING },
-          estimatedTime: { type: SchemaType.NUMBER, description: "Estimated time in hours (can be fractional)" },
-          score: { type: SchemaType.NUMBER, description: "0-100 expected score" },
+          summary: { type: SchemaType.STRING, description: "Concise summary of 1-2 sentences" },
+          estimatedTime: { type: SchemaType.NUMBER, description: `Estimated time in hours (can be fractional) that it would take an 
+            average first year university student to complete, assuming medium focused, some research and studying, and double checking` },
+          score: { type: SchemaType.NUMBER, description: `0 should be like i can just hadn it in with no material, 
+            100 being i will cry before submitting it it. I should rarely see single digit numbers or high 90s. `},
           difficulty: {
             type: SchemaType.STRING,
             format: "enum",
