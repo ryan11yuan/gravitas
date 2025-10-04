@@ -51,13 +51,19 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
       {/* header */}
       <div className="flex items-stretch justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-3">
+          
+          {/* # ranking */}
           <div className="shrink-0 grid place-items-center rounded-xl border border-zinc-800/70 bg-zinc-900/60 px-2.5 py-1.5 text-[11px] text-zinc-300">
             <span className="font-medium">#{rank}</span>
           </div>
+
+            {/* title */}
           <div className="min-w-0 flex-1 pl-1.5 md:pl-2">
             <div className="text-[17px] md:text-[20px] font-semibold text-zinc-50 leading-snug truncate">
               {a.title}
             </div>
+
+            {/* course & difficulty category (ez, med, hard) */}
             <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px]">
               <span className="truncate text-zinc-400">{a.course}</span>
               <span
@@ -66,6 +72,8 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
                 {difficulty}
               </span>
             </div>
+
+            {/* due date & scheduled*/}
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-zinc-400">
               <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
                 <Calendar className="h-3.5 w-3.5" />
@@ -76,19 +84,25 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
                 <span>{a.dueAt ? "Scheduled" : "TBD"}</span>
               </span>
             </div>
+
+            {/* description */}
             <p className="mt-2 text-[13px] leading-snug text-zinc-400 line-clamp-2">
               {a.description?.trim() || srcLabel}
             </p>
+
           </div>
         </div>
+
+        {/* difficulty score */}
         <div className="shrink-0 self-center">
           <div className={`grid h-14 w-14 place-items-center rounded-xl border ${colors[difficulty].pill}`}>
             <span className="text-xl font-extrabold tabular-nums">{score}</span>
           </div>
         </div>
+
       </div>
 
-      {/* expandable */}
+      {/* expandable - your grade and class average*/}
       <div
         id={sectionId}
         className={`ml-15 overflow-hidden transition-[grid-template-rows,opacity] duration-200 ease-out ${
@@ -98,6 +112,8 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
         <div className="min-h-0">
           <hr className="my-4 border-zinc-800/70" />
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+
+            {/* your grade */}
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm text-zinc-400">
                 <Award className="h-4 w-4 text-emerald-400" />
@@ -107,6 +123,8 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
                 You: <span className="tabular-nums">{youPct}</span>
               </div>
             </div>
+
+            {/* class average */}
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm text-zinc-400">
                 <TrendingUp className="h-4 w-4 text-sky-400" />
@@ -115,6 +133,7 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
               <div className="text-2xl font-semibold text-zinc-100">
                 <span className="tabular-nums">{classAvg}</span>
               </div>
+              
             </div>
           </div>
         </div>
