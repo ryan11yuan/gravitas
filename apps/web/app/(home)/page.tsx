@@ -55,7 +55,7 @@ export default function LandingPage() {
 
       {/* HERO */}
       <main className="relative z-10">
-        <section className="max-w-5xl mx-auto px-6 pt-28 pb-20 text-center font-sf">
+        <section className="h-screen max-w- 5xl mx-auto px-6 pt-28 pb-20 text-center font-sf">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">
             <span className="opacity-80">Productivity for students</span>
           </div>
@@ -99,9 +99,9 @@ export default function LandingPage() {
         {/* REQUIREMENTS / LOGIN SECTION */}
         <section
           ref={learnRef}
-          className="h-screen relative z-10 border-t border-white/10 bg-black/30 backdrop-blur-xl"
+          className=" relative z-10 border-t border-white/10 bg-black/30 backdrop-blur-xl"
         >
-          <div className="max-w-5xl mx-auto px-6 py-16 font-sf">
+          <div className=" max-w-5xl mx-auto px-6 py-16 font-sf">
             <h2 className="text-2xl md:text-3xl font-semibold">Before you begin</h2>
             <p className="mt-3 text-zinc-400 max-w-2xl">
               To import assignments and compute priorities, please make sure
