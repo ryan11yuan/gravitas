@@ -4,6 +4,7 @@ import { useState, type KeyboardEvent } from "react";
 import { Calendar, Clock, Award, TrendingUp } from "lucide-react";
 import { computePriorityScore, pickDifficultyFromScore } from "../_utils/priority";
 import type { BaseAssignment } from "@/lib/assignments";
+import { extractText } from "@/lib/content-extraction";
 
 export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: number }) {
   const [open, setOpen] = useState(false);
@@ -77,7 +78,7 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
               </span>
             </div>
             <p className="mt-2 text-[13px] leading-snug text-zinc-400 line-clamp-2">
-              {a.description?.trim() || srcLabel}
+              {extractText(a.description?.trim() ?? "") || srcLabel}
             </p>
           </div>
         </div>

@@ -32,14 +32,6 @@ export interface BaseAssignment {
 
 const DEFAULT_QUERCUS_AVG = 78;
 
-const strip = (h?: string | null) =>
-  h
-    ?.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<\/(p|div|li|br|h[1-6])>/gi, "$&\n")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+\n/g, "\n")
-    .replace(/[ \t]+/g, " ")
-    .trim() || undefined;
 const iso = (s?: string | null) =>
   !s ? s : isNaN(new Date(s).getTime()) ? null : new Date(s).toISOString();
 const num = (v: any) =>
@@ -69,7 +61,7 @@ const mapQuercus = (c: QuercusCourse, a: QuercusAssignment): BaseAssignment => {
     src: "quercus",
     course: c.name ?? String(c.id),
     title: (a.name ?? `Assignment ${a.id}`).toString(),
-    description: strip((a as any).description),
+    description: (a as any).description,
     points: normalized, // 0..1 when graded, else null
     dueAt: iso(a.due_at as string | undefined | null) ?? null,
     graded: typeof sub?.score === "number" || !!(sub?.graded_at || sub?.posted_at),

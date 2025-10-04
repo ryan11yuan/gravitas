@@ -1,5 +1,5 @@
 import { ApiResponse, fetchWithExtension } from "@/lib/extension-client";
-import { QuercusAssignment, QuercusCourse, QuercusUser } from "@/common/types/quercus";
+import { QuercusAssignment, QuercusCourse, QuercusFile, QuercusUser } from "@/common/types/quercus";
 
 const BASE_URL = "https://q.utoronto.ca";
 
@@ -45,4 +45,28 @@ export async function getQuercusCourseAssignments(
   return fetchWithExtension<QuercusAssignment[]>(
     `${BASE_URL}/api/v1/users/self/courses/${courseId}/assignments?include[]=submission`
   );
+}
+
+/**
+ * There are two ways to call this function:
+ *
+ * 1. Using `courseId` and `fileId` — directly constructs the API URL:
+ *      getQuercusCourseFile(405798, 39338105)
+ *      → fetches "https://q.utoronto.ca/api/v1/courses/405798/files/39338105"
+ *
+ * 2. Using a full URL (already extracted elsewhere):
+ *      getQuercusCourseFile("https://q.utoronto.ca/api/v1/courses/405798/files/39338105")
+ *
+ * Background:
+ * When viewing a file in Quercus (Canvas), the page’s HTML often contains a hidden
+ * `<a>` tag or metadata link pointing to the *actual API route* (e.g., `/api/v1/courses/.../files/...`).
+ * If we scrape or inspect that HTML and extract the URL, we can call this helper directly
+ * to get structured JSON metadata about the file.
+ */
+export async function getQuercusCourseFile(a: number | string, b?: number): Promise<ApiResponse<QuercusFile>> {
+  const url =
+    typeof a === "string"
+      ? a
+      : `${BASE_URL}/api/v1/courses/${a}/files/${b}`;
+  return fetchWithExtension<QuercusFile>(url);
 }

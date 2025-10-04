@@ -1,3 +1,11 @@
+export interface QuercusFile {
+  id: number;
+  "content-type"?: string;
+  url?: string; // direct download URL if allowed
+  size?: number;
+  mime_class?: string;
+}
+
 export interface QuercusUser {
   id: number;
   name: string;

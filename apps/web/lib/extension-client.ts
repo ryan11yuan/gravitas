@@ -71,3 +71,61 @@ export async function fetchWithExtension<T = unknown>(
     };
   }
 }
+
+export type DownloadResponse = {
+  success: boolean;
+  data: string | null;         // base64
+  contentType?: string | null;
+  status?: number;
+  statusText?: string;
+  error?: string | null;
+};
+
+export async function rawDownloadViaExtension(
+  url: string,
+  options: RequestInit = {}
+): Promise<DownloadResponse> {
+  return new Promise((resolve, reject) => {
+    if (!(window as any).chrome?.runtime?.sendMessage) {
+      return reject(
+        new Error("chrome.runtime API not available — is the extension installed?")
+      );
+    }
+
+    chrome.runtime.sendMessage(
+      EXT_ID,
+      { type: "DOWNLOAD", url, options },
+      (resp: any) => {
+        const lastErr = (window as any).chrome?.runtime?.lastError;
+        if (lastErr) return reject(lastErr);
+
+        if (!resp || resp.success !== true) {
+          resolve({
+            success: false,
+            data: null,
+            status: resp?.status,
+            statusText: resp?.statusText,
+            error: resp?.error ?? "Unknown download error",
+          });
+        } else {
+          resolve({
+            success: true,
+            data: resp.data,
+            contentType: resp.contentType ?? null,
+            status: resp.status,
+            statusText: resp.statusText,
+            error: null,
+          });
+        }
+      }
+    );
+  });
+}
+
+export function b64ToU8(b64: string): Uint8Array {
+  const clean = b64.replace(/^data:.*;base64,/, "");
+  const bin = atob(clean);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}

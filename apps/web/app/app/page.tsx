@@ -2,13 +2,8 @@
 
 import { isCrowdmarkAuthenticated as isCrowdmarkAuthenticated } from "@/lib/crowdmark-client";
 import { getQuercusUser, isQuercusAuthenticated } from "@/lib/quercus-client";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@workspace/ui/components/breadcrumb";
-import { Separator } from "@workspace/ui/components/separator";
+import getAssignments, { BaseAssignment } from "@/lib/assignments";
+
 import {
   SidebarInset,
   SidebarProvider,
@@ -21,12 +16,14 @@ import { AppSidebar } from "./_components/app-sidebar";
 import { QuercusUser } from "@/common/types/quercus";
 import { Badge } from "@workspace/ui/components/badge";
 import { Check } from "lucide-react";
-
 import AssignmentList from "./_components/assignment-list";
+import { analyzeAssignment } from "@/lib/ai";
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<QuercusUser | null>(null);
+  const [assignments, setAssignments] = useState<BaseAssignment[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,7 +35,6 @@ export default function Page() {
         isCrowdmarkAuthenticated(),
       ]);
 
-      // Helper to decide if a service is authenticated
       const isAuthed = (
         r: PromiseSettledResult<{
           success: boolean;
@@ -53,16 +49,16 @@ export default function Page() {
       const quercusAuthed = isAuthed(q);
       const crowdmarkAuthed = isAuthed(c);
 
-      // If either is NOT authenticated (or the call errored), redirect
       if (!quercusAuthed || !crowdmarkAuthed) {
         if (!cancelled) router.replace("/#steps");
         return;
       }
 
-      // Both authenticated: fetch user
-      const u = await getQuercusUser();
-      if (u.success && u.data && !cancelled) {
-        setUser(u.data as QuercusUser);
+      try {
+        const u = await getQuercusUser();
+        if (u.success && u.data && !cancelled) setUser(u.data as QuercusUser);
+      } catch (_) {
+        /* non-fatal */
       }
 
       if (!cancelled) setIsLoading(false);
@@ -72,6 +68,35 @@ export default function Page() {
       cancelled = true;
     };
   }, [router]);
+
+  useEffect(() => {
+    const preFetch = async () => {
+      try {
+        const res = await getAssignments();
+        const target = res.find(
+          (a) => a.title?.trim().toLowerCase() === "Assignment 1".toLowerCase() && a.course === "CSCA08H3 F 20259:Introduction to Computer Science I"
+        );
+
+        if (!target) return;
+
+        const ctx = {
+          title: target.title,
+          descriptionHtml: target.description ?? null,
+          dueAtISO: target.dueAt ?? null,
+          course: target.course ?? null,
+        };
+
+        const est = await analyzeAssignment(ctx);
+        console.log(est);
+        setAssignments(res);
+      } catch (e: any) {
+        setAssignments([]);
+        setError(e?.message || "Failed to load assignments");
+      }
+    };
+
+    preFetch();
+  }, []);
 
   if (isLoading) {
     return (
@@ -96,9 +121,17 @@ export default function Page() {
             </Badge>
           </div>
         </header>
+
         <div className="flex flex-1 flex-col gap-4 p-4">
-          <h3 className="text-2xl font-medium ml-5 mb-3 mt-3">Assignments</h3>
-          <AssignmentList />
+          <h3 className="ml-5 mt-3 mb-3 text-2xl font-medium">Assignments</h3>
+
+          {error ? (
+            <div className="max-w-5xl rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+              {error}
+            </div>
+          ) : null}
+
+          <AssignmentList assignments={assignments} />
         </div>
       </SidebarInset>
     </SidebarProvider>
