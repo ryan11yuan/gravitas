@@ -37,3 +37,8 @@ npm-debug.log*
 
 # Typescript
 *.tsbuildinfo
+
+# Extension
+vite.config.d.ts
+vite.config.d.ts.map
+vite.config.js
