@@ -38,29 +38,34 @@ export default function Page() {
         isCrowdmarkAuthenticated(),
       ]);
 
-      const quercusErrored =
-        q.status === "rejected" ||
-        (q.status === "fulfilled" && (!q.value.success || q.value.error));
+      // Helper to decide if a service is authenticated
+      const isAuthed = (
+        r: PromiseSettledResult<{
+          success: boolean;
+          data: boolean | null;
+          error: any;
+        }>
+      ) =>
+        r.status === "fulfilled" &&
+        r.value?.success === true &&
+        r.value?.data === true;
 
-      const crowdmarkErrored =
-        c.status === "rejected" ||
-        (c.status === "fulfilled" && (!c.value.success || c.value.error));
+      const quercusAuthed = isAuthed(q);
+      const crowdmarkAuthed = isAuthed(c);
 
-      if (quercusErrored || crowdmarkErrored) {
+      // If either is NOT authenticated (or the call errored), redirect
+      if (!quercusAuthed || !crowdmarkAuthed) {
         if (!cancelled) router.replace("/#steps");
         return;
       }
 
-      if (!quercusErrored && !crowdmarkErrored) {
-        const u = await getQuercusUser();
-        if (u.success && u.data && !cancelled) {
-          setUser(u.data as QuercusUser);
-        }
+      // Both authenticated: fetch user
+      const u = await getQuercusUser();
+      if (u.success && u.data && !cancelled) {
+        setUser(u.data as QuercusUser);
       }
 
-      if (!cancelled) {
-        setIsLoading(false);
-      }
+      if (!cancelled) setIsLoading(false);
     })();
 
     return () => {
@@ -80,9 +85,7 @@ export default function Page() {
     <SidebarProvider>
       <AppSidebar user={user!} />
       <SidebarInset>
-        <header
-          className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 bg-background/70 backdrop-blur-md"
-        >
+        <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 bg-background/70 backdrop-blur-md">
           <SidebarTrigger className="-ml-1" />
           <div className="flex gap-2">
             <Badge className="bg-red-900/30">
