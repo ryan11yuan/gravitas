@@ -1,0 +1,13 @@
+{
+  "extends": "@workspace/typescript-config/react-vite.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@workspace/ui/*": ["../../packages/ui/src/*"]
+    },
+    "types": ["vite/client", "chrome"],
+    "lib": ["ES2020", "DOM", "WebWorker"]
+  },
+  "include": ["src", "vite-env.d.ts"]
+}

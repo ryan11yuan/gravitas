@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Gravitas",
+  "version": "0.0.1",
+  "description": "",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Gravitas"
+  },
+    "externally_connectable": {
+    "matches": ["https://your-dashboard.example/*"]
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": ["cookies", "tabs"],
+    "host_permissions": [
+    "https://q.utoronto.ca/*",
+    "https://app.crowdmark.com/*"
+  ]
+}
