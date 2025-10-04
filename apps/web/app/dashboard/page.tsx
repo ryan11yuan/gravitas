@@ -1,6 +1,5 @@
 "use client";
 
-/* eslint-disable */
 import React, { useMemo, useState } from "react";
 import {
   Clock,
