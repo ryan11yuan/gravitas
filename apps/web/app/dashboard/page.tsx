@@ -10,7 +10,7 @@ import {
   ArrowUpDown,
   Search,
 } from "lucide-react";
-import LiquidEther from "./_components/liquid-either";
+import LiquidEther from "../(home)/_components/liquid-either";
 
 type Assignment = {
   id: number;
