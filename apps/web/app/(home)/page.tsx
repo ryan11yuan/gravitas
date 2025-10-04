@@ -1,25 +1,31 @@
 "use client";
 
-import React, { useRef } from "react";
-import LiquidEther from "./_components/liquid-either"; 
-import { ChevronDown, LogIn } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import LiquidEther from "./_components/liquid-either";
+import { ChevronDown, LogIn, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { isAuthenticated as isQuercusAuthenticated } from "@/integrations/quercus";
+import { isAuthenticated as isCrowdmarkAuthenticated } from "@/integrations/crowdmark";
 
 export default function LandingPage() {
   const learnRef = useRef<HTMLDivElement | null>(null);
+  const [quercusSignedIn, setQuercusSignedIn] = useState(false);
+  const [crowdmarkSignedIn, setCrowdmarkSignedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const quercusRes = await isQuercusAuthenticated();
+      if (quercusRes.success && quercusRes.data) setQuercusSignedIn(true);
+
+      const crowdmarkRes = await isCrowdmarkAuthenticated();
+      if (crowdmarkRes.success && crowdmarkRes.data) setCrowdmarkSignedIn(true);
+    };
+    checkAuth();
+  }, []);
 
   const scrollToLearn = () => {
     learnRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  // TODO: wire these to your auth flows
-  const signInBoth = () => {
-    // e.g., call your API route that starts both OAuth flows server-side
-    // fetch("/api/auth/edu/sso", { method: "POST" })
-    console.log("Sign in to Quercus + Crowdmark");
-  };
-  const signInQuercus = () => console.log("Sign in to Quercus");
-  const signInCrowdmark = () => console.log("Sign in to Crowdmark");
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -44,15 +50,13 @@ export default function LandingPage() {
             autoRampDuration={0.6}
           />
         </div>
-        {/* lighter veil for readability */}
         <div className="pointer-events-none absolute inset-0 bg-white/6" />
       </div>
 
       {/* HERO */}
       <main className="relative z-10">
-        <section className="max-w-5xl mx-auto px-6 pt-28 pb-20 text-center font-sf">
+        <section className="h-screen max-w-5xl mx-auto px-6 pt-28 pb-20 text-center font-sf">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">
-            {/* small pill to balance the layout (optional) */}
             <span className="opacity-80">Productivity for students</span>
           </div>
 
@@ -68,7 +72,6 @@ export default function LandingPage() {
           </p>
 
           <div className="mt-8 flex items-center justify-center gap-3">
-            {/* Get Started → your app */}
             <Link
               href="/dashboard"
               className="rounded-full bg-white text-black px-6 py-3 text-sm font-semibold hover:bg-zinc-200 transition-colors"
@@ -76,7 +79,6 @@ export default function LandingPage() {
               Get Started
             </Link>
 
-            {/* Learn More → scroll down */}
             <button
               onClick={scrollToLearn}
               className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm text-white/90 hover:border-white/20 transition-colors"
@@ -97,12 +99,10 @@ export default function LandingPage() {
         {/* REQUIREMENTS / LOGIN SECTION */}
         <section
           ref={learnRef}
-          className="relative z-10 border-t border-white/10 bg-black/30 backdrop-blur-xl"
+          className="h-screen relative z-10 border-t border-white/10 bg-black/30 backdrop-blur-xl"
         >
           <div className="max-w-5xl mx-auto px-6 py-16 font-sf">
-            <h2 className="text-2xl md:text-3xl font-semibold">
-              Before you begin
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-semibold">Before you begin</h2>
             <p className="mt-3 text-zinc-400 max-w-2xl">
               To import assignments and compute priorities, please make sure
               you&apos;re signed into both{" "}
@@ -111,34 +111,33 @@ export default function LandingPage() {
             </p>
 
             <div className="mt-8 grid md:grid-cols-3 gap-4">
-              {/* One-click */}
-              <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
-                <h3 className="text-lg font-semibold">One-click sign in</h3>
-                <p className="mt-2 text-sm text-zinc-400">
-                  Start both sessions at once and return here automatically.
-                </p>
-                <button
-                  onClick={signInBoth}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white text-black px-4 py-2 text-sm font-semibold hover:bg-zinc-200 transition-colors"
-                >
-                  <LogIn className="h-4 w-4" />
-                  Sign in to Quercus + Crowdmark
-                </button>
-              </div>
-
               {/* Quercus */}
               <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
                 <h3 className="text-lg font-semibold">Quercus</h3>
                 <p className="mt-2 text-sm text-zinc-400">
                   Connect to sync courses, due dates, and posted assignments.
                 </p>
-                <button
-                  onClick={signInQuercus}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 hover:border-white/20"
-                >
-                  <LogIn className="h-4 w-4" />
-                  Sign in to Quercus
-                </button>
+
+                {quercusSignedIn ? (
+                  <button
+                    disabled
+                    aria-label="Quercus connected"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-black px-4 py-2 text-sm font-semibold cursor-default"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    Connected
+                  </button>
+                ) : (
+                  <Link
+                    href="https://q.utoronto.ca" /* TODO: adjust to your auth route */
+                    target="_blank"
+                    aria-label="Sign in to Quercus"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 hover:border-white/20"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Sign in to Quercus
+                  </Link>
+                )}
               </div>
 
               {/* Crowdmark */}
@@ -147,13 +146,37 @@ export default function LandingPage() {
                 <p className="mt-2 text-sm text-zinc-400">
                   Pull grades and feedback to calibrate difficulty scores.
                 </p>
-                <button
-                  onClick={signInCrowdmark}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 hover:border-white/20"
-                >
-                  <LogIn className="h-4 w-4" />
-                  Sign in to Crowdmark
-                </button>
+
+                {crowdmarkSignedIn ? (
+                  <button
+                    disabled
+                    aria-label="Crowdmark connected"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-500 text-black px-4 py-2 text-sm font-semibold cursor-default"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    Connected
+                  </button>
+                ) : (
+                  <Link
+                    href="https://app.crowdmark.com/sign-in/utoronto" /* TODO: adjust to your auth route */
+                    aria-label="Sign in to Crowdmark"
+                    target="_blank"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/90 hover:border-white/20"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Sign in to Crowdmark
+                  </Link>
+                )}
+              </div>
+
+              {/* Optional: Status summary card */}
+              <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/40 p-5">
+                <h3 className="text-lg font-semibold">Status</h3>
+                <p className="mt-2 text-sm text-zinc-400">
+                  {quercusSignedIn ? "Quercus connected" : "Quercus not connected"}
+                  {" • "}
+                  {crowdmarkSignedIn ? "Crowdmark connected" : "Crowdmark not connected"}
+                </p>
               </div>
             </div>
 
@@ -169,7 +192,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* SF Pro utility (same as your app) */}
+      {/* SF Pro utility */}
       <style>{`
         .font-sf {
           font-family:

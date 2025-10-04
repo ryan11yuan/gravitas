@@ -1,5 +1,3 @@
-"use client";
-
 export type ApiError = {
   status: number;
   statusText: string;
@@ -14,7 +12,7 @@ export type ApiResponse<T> = {
 
 export type FetchViaExtensionOptions = RequestInit & { parseJson?: boolean };
 
-const EXT_ID = process.env.EXT_ID;
+const EXT_ID = process.env.NEXT_PUBLIC_EXT_ID!;
 
 /**
  * Low-level raw call through the extension.
