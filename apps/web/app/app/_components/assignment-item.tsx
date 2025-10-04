@@ -46,7 +46,7 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
       onKeyDown={onKey}
       className={`ml-5 group relative cursor-pointer select-none rounded-2xl border border-zinc-800/70 bg-zinc-950/70
       backdrop-blur-sm transition-colors hover:border-zinc-700/70
-      p-5 md:p-6 pl-7 md:pl-8 border-l-4 ${colors[difficulty].bar}`}
+      p-5 md:p-6 pl-7 md:pl-8 ${colors[difficulty].bar}`}
     >
       {/* header */}
       <div className="flex items-stretch justify-between gap-3">
@@ -91,7 +91,7 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
       {/* expandable */}
       <div
         id={sectionId}
-        className={`overflow-hidden transition-[grid-template-rows,opacity] duration-200 ease-out ${
+        className={`ml-15 overflow-hidden transition-[grid-template-rows,opacity] duration-200 ease-out ${
           open ? "grid grid-rows-[1fr] opacity-100" : "grid grid-rows-[0fr] opacity-0"
         }`}
       >
