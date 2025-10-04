@@ -81,8 +81,7 @@ export default function Page() {
       <AppSidebar user={user!} />
       <SidebarInset>
         <header
-          className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 
-  bg-background/70 backdrop-blur-md"
+          className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 bg-background/70 backdrop-blur-md"
         >
           <SidebarTrigger className="-ml-1" />
           <div className="flex gap-2">
