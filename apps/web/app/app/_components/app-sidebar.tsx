@@ -14,6 +14,7 @@ import {
 import { DatePicker } from "./date-picker";
 import Dates from "./dates";
 import { NavUser } from "./nav-user";
+import { QuercusUser } from "@/common/types/quercus";
 
 // This is sample data.
 const data = {
@@ -38,11 +39,15 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sidebar> & {user: QuercusUser}) {
   return (
     <Sidebar {...props}>
       <SidebarHeader className="border-sidebar-border h-16 border-b">
-        <NavUser user={data.user} />
+        <NavUser user={{
+          name: user.name,
+          email: "q.utoronto.ca",
+          avatar: user.avatar_url
+        }} />
       </SidebarHeader>
       <SidebarContent className="gap-0">
         <DatePicker />

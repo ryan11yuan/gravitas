@@ -5,7 +5,7 @@ export interface QuercusUser {
   last_name: string;
   first_name: string;
   short_name: string;
-  email?: string;
+  avatar_url: string;
 }
 
 export interface QuercusCourse {

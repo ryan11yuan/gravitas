@@ -8,7 +8,7 @@ import { ApiResponse, fetchWithExtension } from "@/lib/extension-client";
 
 const BASE_URL = "https://app.crowdmark.com";
 
-export async function isAuthenticated(): Promise<ApiResponse<boolean>> {
+export async function isCrowdmarkAuthenticated(): Promise<ApiResponse<boolean>> {
   const res = await fetchWithExtension<CrowdmarkResponse<CrowdmarkCourse> | string>(
     `${BASE_URL}/api/v2/student/courses?filter[is_archived]=false&page[number]=1`
   );
@@ -33,14 +33,14 @@ export async function isAuthenticated(): Promise<ApiResponse<boolean>> {
 }
 
 
-export async function getCourses(): Promise<ApiResponse<CrowdmarkCourse[]>> {
+export async function getCrowdmarkCourses(): Promise<ApiResponse<CrowdmarkCourse[]>> {
   return fetchAllPages<CrowdmarkCourse>(
     `${BASE_URL}/api/v2/student/courses`,
     "?filter[is_archived]=false"
   );
 }
 
-export async function getAssignments(
+export async function getCrowdmarkAssignments(
   courseId: string
 ): Promise<ApiResponse<CrowdmarkAssignment[]>> {
   return fetchWithExtension<CrowdmarkAssignment[]>(
@@ -48,7 +48,7 @@ export async function getAssignments(
   );
 }
 
-export async function getCourseStatistics(
+export async function getCrowdmarkCourseStatistics(
   courseId: string
 ): Promise<ApiResponse<CrowdmarkCourseStatistics>> {
   return fetchWithExtension<CrowdmarkCourseStatistics>(

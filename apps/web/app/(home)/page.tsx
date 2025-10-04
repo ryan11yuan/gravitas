@@ -24,9 +24,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { isAuthenticated as isCrowdmarkAuthenticated } from "@/lib/crowdmark-client";
-import { isAuthenticated as isQuercusAuthenticated } from "@/lib/quercus-client";
+import { isCrowdmarkAuthenticated } from "@/lib/crowdmark-client";
+import { isQuercusAuthenticated } from "@/lib/quercus-client";
 import { cn } from "@workspace/ui/lib/utils";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 export default function Page() {
   const [quercusAuthed, setQuercusAuthed] = useState<boolean | null>(null);
@@ -104,7 +105,7 @@ export default function Page() {
         </main>
 
         {/* Steps */}
-        <section id="steps" className="mx-auto mb-40 max-w-4xl px-6">
+        <section id="steps" className="mx-auto mb-48 max-w-4xl px-6">
           <div className="mb-6">
             <h2 className="text-2xl font-semibold tracking-tight">
               Getting set up
@@ -147,26 +148,12 @@ export default function Page() {
                   <span className="text-xs text-muted-foreground">Step 1</span>
                 </div>
 
-                <CardTitle>Login to Quercus</CardTitle>
+                <CardTitle className="flex gap-2">Login to Quercus {quercusAuthed === null && <Spinner/>}</CardTitle>
                 <CardDescription className="text-muted-foreground">
                   Authorize access so we can pull your course list and due dates
                   securely.
                 </CardDescription>
               </CardHeader>
-
-              <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  Status:
-                  <b>
-                    {" "}
-                    {quercusAuthed === null
-                      ? "Checking..."
-                      : quercusAuthed
-                        ? "Signed in"
-                        : "Not signed in"}
-                  </b>
-                </div>
-              </CardContent>
 
               <CardFooter className="mt-auto justify-between">
                 <div className="text-xs text-muted-foreground">
@@ -223,25 +210,11 @@ export default function Page() {
                   <span className="text-xs text-muted-foreground">Step 2</span>
                 </div>
 
-                <CardTitle>Login to Crowdmark</CardTitle>
+                <CardTitle className="flex gap-2">Login to Crowdmark {crowdmarkAuthed === null && <Spinner/>}</CardTitle>
                 <CardDescription className="text-muted-foreground">
                   Link your account to fetch assignments and class averages.
                 </CardDescription>
               </CardHeader>
-
-              <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  Status:
-                  <b>
-                    {" "}
-                    {crowdmarkAuthed === null
-                      ? "Checking..."
-                      : crowdmarkAuthed
-                        ? "Signed in"
-                        : "Not signed in"}
-                  </b>
-                </div>
-              </CardContent>
 
               <CardFooter className="mt-auto justify-between">
                 <div className="text-xs text-muted-foreground">
