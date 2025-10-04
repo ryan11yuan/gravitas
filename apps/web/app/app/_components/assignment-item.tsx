@@ -4,13 +4,14 @@ import { useState, type KeyboardEvent } from "react";
 import { Calendar, Clock, Award, TrendingUp } from "lucide-react";
 import { computePriorityScore, pickDifficultyFromScore } from "../_utils/priority";
 import type { BaseAssignment } from "@/lib/assignments";
+import { formatDue } from "../_utils/format";
 
 export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: number }) {
   const [open, setOpen] = useState(false);
 
   const score = computePriorityScore(a.dueAt, a.points);
   const difficulty = pickDifficultyFromScore(score);
-  const dueText = a.dueAt ? a.dueAt : "No due date";
+  const dueText = formatDue(a.dueAt) ? formatDue(a.dueAt) : "No due date";
   const srcLabel = a.src === "quercus" ? "Quercus assignment" : "Crowdmark assignment";
 
   const youPct =
@@ -133,7 +134,7 @@ export default function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: n
               <div className="text-2xl font-semibold text-zinc-100">
                 <span className="tabular-nums">{classAvg}</span>
               </div>
-              
+
             </div>
           </div>
         </div>
