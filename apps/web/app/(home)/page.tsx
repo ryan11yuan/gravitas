@@ -46,7 +46,7 @@ export default function LandingPage() {
             autoSpeed={0.5}
             autoIntensity={2.2}
             takeoverDuration={0.25}
-            autoResumeDelay={3000}
+            autoResumeDelay={0}
             autoRampDuration={0.6}
           />
         </div>
@@ -55,7 +55,7 @@ export default function LandingPage() {
 
       {/* HERO */}
       <main className="relative z-10">
-        <section className="h-screen max-w-5xl mx-auto px-6 pt-28 pb-20 text-center font-sf">
+        <section className="max-w-5xl mx-auto px-6 pt-28 pb-20 text-center font-sf">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">
             <span className="opacity-80">Productivity for students</span>
           </div>
