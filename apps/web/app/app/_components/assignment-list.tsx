@@ -4,8 +4,6 @@ import getAssignments, { BaseAssignment } from "@/lib/assignments";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import { Calendar, Clock, Award, TrendingUp, Search, Filter as FilterIcon, ArrowUpDown } from "lucide-react";
 
-/* ---------------- Assignment List ---------------- */
-
 export default function AssignmentList() {
   const [assignments, setAssignments] = useState<BaseAssignment[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +25,6 @@ export default function AssignmentList() {
     })();
   }, []);
 
-  // ✅ Compute the derived view BEFORE any early returns to keep hook order stable
   const view = useMemo(() => {
     if (!assignments) return [];
     const q = query.trim().toLowerCase();
@@ -169,7 +166,7 @@ function ControlsBar({
   );
 }
 
-/* ---------------- Card + helpers (unchanged layout/feel) ---------------- */
+/* ---------------- Card + helpers ---------------- */
 
 function AssignmentItem({ a, rank }: { a: BaseAssignment; rank: number }) {
   const [open, setOpen] = useState(false);
