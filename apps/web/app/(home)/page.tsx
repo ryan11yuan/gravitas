@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import { isCrowdmarkAuthenticated } from "@/lib/crowdmark-client";
 import { isQuercusAuthenticated } from "@/lib/quercus-client";
@@ -55,7 +55,7 @@ export default function Page() {
   const bothConnected = quercusAuthed === true && crowdmarkAuthed === true;
 
   return (
-    <div className="relative min-h-screen overflow-hidden container">
+    <div className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <LiquidEither
           colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
@@ -70,196 +70,205 @@ export default function Page() {
           autoDemo={true}
           autoSpeed={0.5}
           autoIntensity={2.2}
-          takeoverDuration={0.25}
+          takeoverDuration={0.1}
           autoResumeDelay={100}
           autoRampDuration={0.6}
         />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_40%,transparent_0%,transparent_50%,rgba(0,0,0,0.6)_100%)]" />
       </div>
+      <div className="relative min-h-screen overflow-hidden container">
+        <div>
+          {/* Hero */}
+          <main className="min-h-screen mx-auto flex max-w-4xl flex-col items-center justify-center px-6 text-center">
+            <Badge variant="outline" className="mb-6 gap-2">
+              <Wand2 className="h-3.5 w-3.5" />
+              Education Reimagined
+            </Badge>
 
-      <div>
-        {/* Hero */}
-        <main className="min-h-screen mx-auto flex max-w-4xl flex-col items-center justify-center px-6 text-center">
-          <Badge variant="outline" className="mb-6 gap-2">
-            <Wand2 className="h-3.5 w-3.5" />
-            Education Reimagined
-          </Badge>
+            <h1 className="mx-auto text-balance text-4xl font-bold leading-tight tracking-[-0.02em] sm:text-5xl md:text-6xl">
+              Know what's hard. 
+              <br />
+              Do it first.
+            </h1>
 
-          <h1 className="mx-auto text-balance text-4xl font-bold leading-tight tracking-[-0.02em] sm:text-5xl md:text-6xl">
-            The web, made fluid at your
-            <br />
-            fingertips.
-          </h1>
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+              <Button size="lg">
+                Install Chrome Extension <ChevronRight />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => redirect("#steps")}
+              >
+                Get Started <ChevronDown />
+              </Button>
+            </div>
+          </main>
 
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
-            <Button size="lg">
-              Install Chrome Extension <ChevronRight />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => redirect("#steps")}
-            >
-              Get Started <ChevronDown />
-            </Button>
-          </div>
-        </main>
+          {/* Steps */}
+          <section id="steps" className="mx-auto mb-48 max-w-4xl px-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Getting set up
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Connect your accounts, then launch the app.
+              </p>
+            </div>
 
-        {/* Steps */}
-        <section id="steps" className="mx-auto mb-48 max-w-4xl px-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Getting set up
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Connect your accounts, then launch the app.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Step 1: Quercus */}
-            <Card
-              className={cn(
-                "flex flex-col transition-colors",
-                quercusAuthed && "border-green-500/40 bg-green-500/10"
-              )}
-            >
-              <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Badge
-                    variant={quercusAuthed ? "default" : "outline"}
-                    className={cn(
-                      "gap-1",
-                      quercusAuthed && "bg-green-600 text-white"
-                    )}
-                  >
-                    {quercusAuthed ? (
-                      <>
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Connected
-                      </>
-                    ) : (
-                      <>
-                        <CircleAlert className="h-3.5 w-3.5" />
-                        Not connected
-                      </>
-                    )}
-                  </Badge>
-
-                  <span className="text-xs text-muted-foreground">Step 1</span>
-                </div>
-
-                <CardTitle className="flex gap-2">Login to Quercus {quercusAuthed === null && <Spinner/>}</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Authorize access so we can pull your course list and due dates
-                  securely.
-                </CardDescription>
-              </CardHeader>
-
-              <CardFooter className="mt-auto justify-between">
-                <div className="text-xs text-muted-foreground">
-                  Uses your existing Quercus session via the extension.
-                </div>
-
-                {quercusAuthed ? (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="https://q.utoronto.ca/" target="_blank">
-                      Manage
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button size="sm" asChild>
-                    {/* Replace with your actual auth route */}
-                    <Link href="https://q.utoronto.ca/" target="_blank">
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Sign in
-                    </Link>
-                  </Button>
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Step 1: Quercus */}
+              <Card
+                className={cn(
+                  "flex flex-col transition-colors",
+                  quercusAuthed && "border-green-500/40 bg-green-500/10"
                 )}
-              </CardFooter>
-            </Card>
-
-            {/* Step 2: Crowdmark */}
-            <Card
-              className={cn(
-                "flex flex-col transition-colors",
-                crowdmarkAuthed && "border-green-500/40 bg-green-500/10"
-              )}
-            >
-              <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Badge
-                    variant={crowdmarkAuthed ? "default" : "outline"}
-                    className={cn(
-                      "gap-1",
-                      crowdmarkAuthed && "bg-green-600 text-white"
-                    )}
-                  >
-                    {crowdmarkAuthed ? (
-                      <>
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Connected
-                      </>
-                    ) : (
-                      <>
-                        <CircleAlert className="h-3.5 w-3.5" />
-                        Not connected
-                      </>
-                    )}
-                  </Badge>
-
-                  <span className="text-xs text-muted-foreground">Step 2</span>
-                </div>
-
-                <CardTitle className="flex gap-2">Login to Crowdmark {crowdmarkAuthed === null && <Spinner/>}</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Link your account to fetch assignments and class averages.
-                </CardDescription>
-              </CardHeader>
-
-              <CardFooter className="mt-auto justify-between">
-                <div className="text-xs text-muted-foreground">
-                  Securely reads only what's needed for your dashboard.
-                </div>
-
-                {crowdmarkAuthed ? (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link
-                      href="https://app.crowdmark.com/student/courses"
-                      target="_blank"
+              >
+                <CardHeader className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Badge
+                      variant={quercusAuthed ? "default" : "outline"}
+                      className={cn(
+                        "gap-1",
+                        quercusAuthed && "bg-green-600 text-white"
+                      )}
                     >
-                      Manage
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button size="sm" asChild>
-                    <Link
-                      href="https://app.crowdmark.com/sign-in/utoronto"
-                      target="_blank"
-                    >
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Sign in
-                    </Link>
-                  </Button>
+                      {quercusAuthed ? (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Connected
+                        </>
+                      ) : (
+                        <>
+                          <CircleAlert className="h-3.5 w-3.5" />
+                          Not connected
+                        </>
+                      )}
+                    </Badge>
+
+                    <span className="text-xs text-muted-foreground">
+                      Step 1
+                    </span>
+                  </div>
+
+                  <CardTitle className="flex gap-2">
+                    Login to Quercus {quercusAuthed === null && <Spinner />}
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Authorize access so we can pull your course list and due
+                    dates securely.
+                  </CardDescription>
+                </CardHeader>
+
+                <CardFooter className="mt-auto justify-between">
+                  <div className="text-xs text-muted-foreground">
+                    Uses your existing Quercus session via the extension.
+                  </div>
+
+                  {quercusAuthed ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="https://q.utoronto.ca/" target="_blank">
+                        Manage
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button size="sm" asChild>
+                      {/* Replace with your actual auth route */}
+                      <Link href="https://q.utoronto.ca/" target="_blank">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Sign in
+                      </Link>
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+
+              {/* Step 2: Crowdmark */}
+              <Card
+                className={cn(
+                  "flex flex-col transition-colors",
+                  crowdmarkAuthed && "border-green-500/40 bg-green-500/10"
                 )}
-              </CardFooter>
-            </Card>
-          </div>
+              >
+                <CardHeader className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Badge
+                      variant={crowdmarkAuthed ? "default" : "outline"}
+                      className={cn(
+                        "gap-1",
+                        crowdmarkAuthed && "bg-green-600 text-white"
+                      )}
+                    >
+                      {crowdmarkAuthed ? (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Connected
+                        </>
+                      ) : (
+                        <>
+                          <CircleAlert className="h-3.5 w-3.5" />
+                          Not connected
+                        </>
+                      )}
+                    </Badge>
 
-          {/* Proceed */}
-          <div className="mt-6 flex items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">
-              {bothConnected
-                ? "You're all set—launch the app."
-                : "Connect both services to continue."}
-            </p>
-            <Button size="lg" disabled={!bothConnected} asChild>
-              <Link href={bothConnected ? "/app" : "#steps"}>
-                Proceed to app <ChevronRight />
-              </Link>
-            </Button>
-          </div>
-        </section>
+                    <span className="text-xs text-muted-foreground">
+                      Step 2
+                    </span>
+                  </div>
+
+                  <CardTitle className="flex gap-2">
+                    Login to Crowdmark {crowdmarkAuthed === null && <Spinner />}
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Link your account to fetch assignments and class averages.
+                  </CardDescription>
+                </CardHeader>
+
+                <CardFooter className="mt-auto justify-between">
+                  <div className="text-xs text-muted-foreground">
+                    Securely reads only what's needed for your dashboard.
+                  </div>
+
+                  {crowdmarkAuthed ? (
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        href="https://app.crowdmark.com/student/courses"
+                        target="_blank"
+                      >
+                        Manage
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button size="sm" asChild>
+                      <Link
+                        href="https://app.crowdmark.com/sign-in/utoronto"
+                        target="_blank"
+                      >
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Sign in
+                      </Link>
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            </div>
+
+            {/* Proceed */}
+            <div className="mt-6 flex items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                {bothConnected
+                  ? "You're all set—launch the app."
+                  : "Connect both services to continue."}
+              </p>
+              <Button size="lg" disabled={!bothConnected} asChild>
+                <Link href={bothConnected ? "/app" : "#steps"}>
+                  Proceed to app <ChevronRight />
+                </Link>
+              </Button>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );
