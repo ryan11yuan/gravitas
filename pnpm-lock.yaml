@@ -94,6 +94,9 @@ importers:
         specifier: ^19.1.1
         version: 19.2.0(react@19.2.0)
     devDependencies:
+      '@types/chrome':
+        specifier: ^0.0.271
+        version: 0.0.271
       '@types/node':
         specifier: ^20.19.9
         version: 20.19.19

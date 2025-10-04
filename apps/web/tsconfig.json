@@ -10,7 +10,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "types": ["chrome"]
   },
   "include": [
     "next-env.d.ts",

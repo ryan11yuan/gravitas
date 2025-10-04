@@ -38,7 +38,12 @@ export interface QuercusAssignment {
   unlock_at?: string | null;
 
   points_possible?: number;
-  grading_type?: "pass_fail" | "percent" | "letter_grade" | "gpa_scale" | "points";
+  grading_type?:
+    | "pass_fail"
+    | "percent"
+    | "letter_grade"
+    | "gpa_scale"
+    | "points";
 
   submission?: QuercusSubmission | null;
 }

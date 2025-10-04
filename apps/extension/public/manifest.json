@@ -7,16 +7,13 @@
     "default_popup": "index.html",
     "default_title": "Gravitas"
   },
-    "externally_connectable": {
-    "matches": ["https://your-dashboard.example/*"]
+  "externally_connectable": {
+    "matches": ["https://your-dashboard.example/*", "http://localhost:3000/*"]
   },
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "permissions": ["cookies", "tabs"],
-    "host_permissions": [
-    "https://q.utoronto.ca/*",
-    "https://app.crowdmark.com/*"
-  ]
+  "host_permissions": ["https://q.utoronto.ca/*", "https://app.crowdmark.com/*"]
 }
