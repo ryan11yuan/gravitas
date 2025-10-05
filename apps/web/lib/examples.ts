@@ -1,4 +1,5 @@
-export const examplesText = `Assignment: STARR Story Bank
+export const examplesText = `---
+Assignment: STARR Story Bank
 Full Assignment:
 The STARR Story Bank assignment requires students to write at least two detailed STARR stories demonstrating key skills. Each story must clearly address: Situation, Task, Action, Result, and Result. Stories should be concise, professional, and measurable where possible. The submission should reflect a range of skills relevant to career goals. Clarity, professional tone, and variety in the stories will be evaluated.
 Student Example Submission:
@@ -83,4 +84,8 @@ QUANTAM COMPUTING ASSIGNMENT
 "This assignment covers advanced topics in quantum mechanics including perturbation theory, spin-orbit coupling, and multi-particle systems. Students must solve 10 challenging problems requiring analytical derivations, numerical simulations, and conceptual reasoning. Detailed solutions must include all mathematical steps, assumptions, and justifications. Collaboration is prohibited, and any use of online solutions or AI tools must be cited. Submission must be a PDF with neatly formatted equations and diagrams. Students are expected to spend extensive time on research, reviewing lecture notes, and consulting primary sources from textbooks and journal papers. The assignment is designed to push students’ understanding to the limits, testing problem-solving skills, critical thinking, and mastery of advanced quantum mechanics concepts."
 would be a 95+ its way too hard for an university student and it would probably make me cry.
 
-key notes: the amount of time an assignment will take is most likely the determinigng factor of difficulty.`;
+key notes: the amount of time an assignment will take is most likely the determinigng factor of difficulty.
+
+
+
+`;
