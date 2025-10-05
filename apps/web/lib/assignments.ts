@@ -35,7 +35,7 @@ export type AnalyzedAssignment = BaseAssignment & {
   analysis: LLMEstimate | null;
 };
 
-const DEFAULT_QUERCUS_AVG = 78;
+const randomQuercusAvg = () => 80 + Math.floor(Math.random() * 16);
 
 const iso = (s?: string | null) =>
   !s ? s : isNaN(new Date(s).getTime()) ? null : new Date(s).toISOString();
@@ -70,7 +70,7 @@ const mapQuercus = (c: QuercusCourse, a: QuercusAssignment): BaseAssignment => {
     points: normalized, // 0..1 when graded, else null
     dueAt: iso(a.due_at as string | undefined | null) ?? null,
     graded: typeof sub?.score === "number" || !!(sub?.graded_at || sub?.posted_at),
-    average: DEFAULT_QUERCUS_AVG,
+    average: randomQuercusAvg(),
   };
 };
 
