@@ -16,6 +16,7 @@ import Dates from "./dates";
 import { NavUser } from "./nav-user";
 import { QuercusUser } from "@/common/types/quercus";
 import { AnalyzedAssignment } from "@/lib/assignments";
+import { buildAssignmentsICS, downloadICS } from "@/lib/export-calendar";
 
 // This is sample data.
 const data = {
@@ -43,6 +44,25 @@ const data = {
 export function AppSidebar({ user, assignments, ...props }: React.ComponentProps<typeof Sidebar> & {user: QuercusUser, assignments: AnalyzedAssignment[] | null}) {
   const [selected, setSelected] = React.useState<Date | undefined>(undefined);
   
+
+  const onExport = React.useCallback(() => {
+    if (!assignments || assignments.length === 0) return;
+
+    const { value, error } = buildAssignmentsICS(assignments, {
+      calendarName: `${user.name}'s Quercus Assignments`,
+      asAllDay: false,        // set to true if you prefer all-day events
+      includeAlarms: true,    // set to false to disable reminders
+    });
+
+    if (error || !value) {
+      console.error("ICS export error:", error);
+      return;
+    }
+
+    downloadICS(value, "assignments.ics");
+  }, [assignments, user?.name]);
+
+
   return (
     <Sidebar {...props}>
       <SidebarHeader className="border-sidebar-border h-16 border-b">
@@ -63,7 +83,7 @@ export function AppSidebar({ user, assignments, ...props }: React.ComponentProps
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem className="flex flex-col gap-1.5">
-            <SidebarMenuButton className="bg-primary hover:bg-primary/90 active:bg-primary/90">
+            <SidebarMenuButton onClick={onExport} className="bg-primary hover:bg-primary/90 active:bg-primary/90">
               <FileUp />
               <span>Export Calendar</span>
             </SidebarMenuButton>
