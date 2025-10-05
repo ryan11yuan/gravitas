@@ -50,7 +50,7 @@ export async function analyzeAssignment(
   ].join("\n");
 
   // ⚠️ Consider moving this key to an env var in real usage.
-  const genAI = new GoogleGenerativeAI("");
+  const genAI = new GoogleGenerativeAI("AIzaSyBfkNDFS4yyidZSe6RB0jrymHMSw597a_w");
 
   const model = genAI.getGenerativeModel({
     model: modelName,
