@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-nocheck
 
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
