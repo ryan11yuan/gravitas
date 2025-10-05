@@ -116,7 +116,7 @@ export default function AssignmentItem({
               {typeof ai?.etaHours === "number" && (
                 <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
                   <Clock className="h-3.5 w-3.5" />
-                  <span className="tabular-nums">ETA ~{Math.max(0, ai.etaHours).toFixed(1)}h</span>
+                  <span className="tabular-nums">Estimated Time Needed: {Math.max(0, ai.etaHours).toFixed(1)}h</span>
                 </span>
               )}
             </div>
@@ -134,6 +134,8 @@ export default function AssignmentItem({
             <span className="text-xl font-extrabold tabular-nums">{score}</span>
           </div>
         </div>
+
+        
       </div>
 
       {/* expandable - your grade and class average */}
