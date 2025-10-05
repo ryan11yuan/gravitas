@@ -153,10 +153,8 @@ export default function AssignmentItem({
           <div
             className={`grid h-15 w-16 place-items-center rounded-xl border ${colors[difficulty].pill}`}
           >
-            <span className="text-xl font-extrabold tabular-nums">
-              {score}
-              <span className="text-[0.9em] mx-0.5">/</span>
-              10
+            <span className="text-[19px] font-extrabold tabular-nums">
+              {score}/10
             </span>
           </div>
           <div className="mt-2 text-xs text-muted-foreground text-center uppercase">Difficulty</div>
