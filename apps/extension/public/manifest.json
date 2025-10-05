@@ -8,7 +8,7 @@
     "default_title": "Gravitas"
   },
   "externally_connectable": {
-    "matches": ["https://gravitas-ruby.vercel.app/*", "http://localhost:3000/*"]
+    "matches": ["https://gravitas-ruby.vercel.app/*", "http://localhost:3000/*", "https://gravitas.study"]
   },
   "background": {
     "service_worker": "background.js",
