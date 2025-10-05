@@ -48,7 +48,7 @@ export default function AssignmentList({
           };
           const est = await analyzeAssignment(ctx);
           const ai: AIEstimate = {
-            score: Math.max(0, Math.min(100, Math.round(Number(est.difficulty ?? 0)))),
+            score: Math.max(0, Math.min(100, Math.round(Number(est.score ?? 0)))),
             etaHours: Math.max(0, Number(est.estimatedTime ?? 0)),
             summary: typeof est.summary === "string" ? est.summary : "",
           };
