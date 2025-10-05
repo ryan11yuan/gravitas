@@ -63,10 +63,6 @@ export function AppSidebar({ user, assignments, ...props }: React.ComponentProps
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem className="flex flex-col gap-1.5">
-            <SidebarMenuButton>
-              <RefreshCcw />
-              <span>Sync Calendar</span>
-            </SidebarMenuButton>
             <SidebarMenuButton className="bg-primary hover:bg-primary/90 active:bg-primary/90">
               <FileUp />
               <span>Export Calendar</span>

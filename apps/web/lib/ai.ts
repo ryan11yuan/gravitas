@@ -1,18 +1,19 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import { extractPdfs, extractText } from "./content-extraction";
+import { extractText } from "./content-extraction";
 import { examplesText } from "./examples";
 
 export type AssignmentContext = {
   title: string;
   descriptionHtml: string | null;
+  pdfContent: string;
   dueAtISO?: string | null;
   course?: string | null;
 };
 
 export type LLMEstimate = {
   summary: string;
-  estimatedTime: number;
-  score: number; // 0–10 (lower = easier)
+  estimatedTime: number; // hours
+  score: number;         // 0–10 (lower = easier)
   difficulty: "very_easy" | "easy" | "medium" | "hard" | "very_hard";
 };
 
@@ -22,29 +23,39 @@ export async function analyzeAssignment(
 ): Promise<LLMEstimate> {
   const modelName = opts?.model ?? "gemini-2.0-flash-lite";
 
-  const descriptionText = extractText(ctx.descriptionHtml);
-  const pdfRaw = await extractPdfs(ctx.descriptionHtml as any);
-  const pdfText = Array.isArray(pdfRaw) ? pdfRaw.join("\n\n") : (pdfRaw ?? "");
+  const descriptionText = extractText(ctx.descriptionHtml)?.trim() || "";
+  const hasDesc = descriptionText.length > 0;
+  const hasPdf = (ctx.pdfContent?.trim()?.length ?? 0) > 0;
 
-  const MAX_CHARS = 40_000;
+  // ---- NO-CONTENT SHORT CIRCUIT (no speculation) ----
+  if (!hasDesc && !hasPdf) {
+    return {
+      summary: "No description available.",
+      estimatedTime: 0,
+      score: 0,
+      difficulty: "very_easy", // schema requires a label; use neutral floor
+    };
+  }
+
   const merged = [
     `Title: ${ctx.title}`,
     ctx.course ? `Course: ${ctx.course}` : "",
-    ctx.dueAtISO ? `Due At (ISO): ${ctx.dueAtISO}` : "",
+    ctx.dueAtISO ? `DueAtISO: ${ctx.dueAtISO}` : "",
     "",
     "Description:",
-    descriptionText,
+    hasDesc ? descriptionText : "(none)",
     "",
-    "Attached PDF Content (truncated if long):",
-    (pdfText || "").slice(0, MAX_CHARS),
+    "PDF:",
+    hasPdf ? ctx.pdfContent : "(none)",
   ].join("\n");
-  
-  const genAI = new GoogleGenerativeAI("xxx");
+
+  // ⚠️ Consider moving this key to an env var in real usage.
+  const genAI = new GoogleGenerativeAI("AIzaSyBfkNDFS4yyidZSe6RB0jrymHMSw597a_w");
+
   const model = genAI.getGenerativeModel({
     model: modelName,
     generationConfig: {
-      // Make outputs more repeatable/consistent:
-      temperature: 0.2,
+      temperature: 0.05,
       topP: 0.9,
       topK: 32,
       responseMimeType: "application/json",
@@ -53,21 +64,15 @@ export async function analyzeAssignment(
         properties: {
           summary: {
             type: SchemaType.STRING,
-            description:
-              "1–2 sentences summarizing the assignment’s goal and deliverable. No fluff.",
+            description: "1–2 sentences; objective; no fluff.",
           },
           estimatedTime: {
             type: SchemaType.NUMBER,
-            description:
-              "Estimated total hours to complete (can be fractional). Include planning + work + review.",
+            description: "Total hours (can be fractional). Include plan + work + review.",
           },
           score: {
             type: SchemaType.NUMBER,
-            description:
-              [
-                "Overall difficulty on a 0–10 scale (lower = easier, higher = harder).",
-                "Compute using the formula below. Do NOT output a percentage.",
-              ].join(" "),
+            description: "Overall difficulty 0–10 (lower = easier). Compute with the formula.",
           },
           difficulty: {
             type: SchemaType.STRING,
@@ -78,108 +83,129 @@ export async function analyzeAssignment(
         required: ["summary", "estimatedTime", "score", "difficulty"],
       },
     },
+    systemInstruction: [
+      // =========================
+      // ASSIGNMENT ESTIMATOR RULES
+      // =========================
+      "You are a strict estimator for student assignments.",
+      "Analyze ONLY the provided Description/PDF. If they conflict, prefer the PDF.",
+      "Never invent missing details. If a signal is missing, apply the defaults below.",
+      "Return ONLY the JSON fields defined by the schema.",
+      "",
+      // NOVICE BASELINE
+      "ASSUME NOVICE SPEED: Estimate for a student who has just learned the prerequisite material recently (not an expert).",
+      "Interpret requirements conservatively and include time for planning and light debugging/revisions.",
+      "",
+      // SUB-SCORES
+      "SUB-SCORES (W, C, R, T, F), each in [1..10]. Do NOT output these; compute internally:",
+      "• W (Workload/volume): pages, word counts, number of problems/parts. 1=trivial; 5=typical first-year; 10=large multi-part.",
+      "• C (Cognitive complexity): proofs, multi-step reasoning, novel algorithms/concepts. 1=rote; 10=advanced synthesis.",
+      "• R (Research depth): citations, literature review, external sources/experiments. 1=none; 10=scholarly, many sources.",
+      "• F (Format/tooling burden): strict formatting, diagrams, build/run/tests, specialized software. 1=minimal; 10=heavy toolchain.",
+      "• T (Time pressure): based on hoursLeft until DueAtISO (if absent, use 5). Derive:",
+      "   - No DueAtISO → T=5.",
+      "   - hoursLeft ≤ 0 → T=10.",
+      "   - 0 < hoursLeft ≤ 24 → T=9.",
+      "   - 24 < hoursLeft ≤ 72 → T=7.",
+      "   - 72 < hoursLeft ≤ 168 → T=6.",
+      "   - 168 < hoursLeft ≤ 336 → T=4.",
+      "   - hoursLeft > 336 → T=3.",
+      "",
+      // DEFAULTING
+      "DEFAULTING: If a signal is missing/unclear, set that sub-score to 5.",
+      "",
+      // OVERALL SCORE
+      "OVERALL DIFFICULTY SCORE (0–10, lower=easier):",
+      "score = round( 0.40*W + 0.25*C + 0.15*R + 0.10*T + 0.10*F, 1 )",
+      "Clamp to [0,10].",
+      "",
+      // NOVICE ADJUSTMENTS FOR TIME
+      "ESTIMATED TIME (hours):",
+      "Let base = 0.75*W + 0.50*C + 0.40*R + 0.25*F + 0.15*T",
+      "Apply novice adjustments:",
+      "• If C ≥ 6 → base *= 1.15",
+      "• If F ≥ 6 → base *= 1.10",
+      "• If R ≥ 6 → base *= 1.10",
+      "Then:",
+      "estimatedTime = round( max(0.5, base), 1 )",
+      "• If hoursLeft ≤ 48 AND W ≥ 6, add +0.5h (round at end).",
+      "• If the brief is very vague AND W ≤ 4 AND C ≤ 4, bias to 2–4h.",
+      "",
+      // LABEL
+      "DIFFICULTY LABEL (derive from score only):",
+      "0.0–2.0 → very_easy; 2.1–4.0 → easy; 4.1–6.0 → medium; 6.1–8.0 → hard; 8.1–10.0 → very_hard.",
+      "",
+      // SUMMARY STYLE
+      "SUMMARY STYLE: 1–2 sentences. Objective. No fluff, no percentages, no sub-scores.",
+      "If Description is missing but PDF exists, summarize from the PDF. If both exist, summarize the assignment’s goal/deliverable.",
+    ].join("\n"),
   });
 
-  // ====== Strong, formula-based prompt ======
   const prompt = [
-    "You estimate effort and expected difficulty for a student assignment.",
-    "Return concise JSON following the schema. Be consistent and follow the formulas exactly.",
-    "",
-    "DEFINITIONS (rate each 1–10 internally; do not output these sub-scores):",
-    "- Workload (W): volume of work (pages to read, problems, code to write, slides, etc.).",
-    "- Complexity (C): conceptual depth, tricky reasoning, multi-step integration.",
-    "- Research (R): external sources/search, citations, literature review effort.",
-    "- Time Sensitivity (T): coordination/scheduling/iteration cycles that add time (e.g., multi-part submissions, peer review).",
-    "- Format Demands (F): strict formatting, tooling, environment setup, rubric compliance, presentation polish.",
-    "",
-    "SUB-SCORE RUBRICS (anchor the 1, 5, 10 points):",
-    "- 1 ≈ trivial/minimal; 5 ≈ average first-year assignment; 10 ≈ extremely demanding for first-year.",
-    "  Examples:",
-    "  • Workload 1: a short post or 2–3 MCQs. 5: a normal weekly set or 3–5 pages. 10: major project or >15 pages.",
-    "  • Complexity 1: rote recall/simple routine. 5: standard multi-step reasoning. 10: novel synthesis/advanced theory.",
-    "  • Research 1: none/internal materials only. 5: a few credible sources. 10: extensive sources with evaluation.",
-    "  • Time (T) 1: single sitting, few iterations. 5: plan+draft+revise. 10: many checkpoints or reviews.",
-    "  • Format 1: free-form. 5: common academic format. 10: strict tooling/rubric, citations/figures/code packaging.",
-    "",
-    "FINAL SCORE FORMULA (0–10, lower = easier):",
-    "  score = round( 0.50*W + 0.15*C + 0.15*R + 0.10*T + 0.10*F , 1 )",
-    "  - Clamp sub-scores to [1,10] before combining.",
-    "  - If information is missing, assume the first-year average = 5 for that sub-score.",
-    "",
-    "ESTIMATED TIME FORMULA (hours, can be fractional):",
-    "  estimatedTime = round( max(1, 0.6*W + 0.4*C + 0.4*R + 0.3*T + 0.2*F ), 1 )",
-    "  - Add +0.5 hours if due within 48 hours (ctx.dueAtISO present and close) AND W ≥ 6.",
-    "  - If little detail is provided, bias toward 2–4 hours unless W or C clearly suggests otherwise.",
-    "",
-    "DIFFICULTY LABEL (derive from final score):",
-    "  0.0–2.0 → very_easy",
-    "  2.1–4.0 → easy",
-    "  4.1–6.0 → medium",
-    "  6.1–8.0 → hard",
-    "  8.1–10.0 → very_hard",
-    "",
-    "STYLE & CONSTRAINTS:",
-    "- Use the provided text only. Do not hallucinate course-specific facts.",
-    "- Keep summary to 1–2 sentences.",
-    "- Output only fields required by the schema.",
-    "- Use the formulas exactly for score and estimatedTime.",
-    "",
-    "REFERENCE EXAMPLES (guidance, not data to copy):",
-    examplesText,
-    "",
-    "ASSIGNMENT CONTEXT:",
+    "ASSIGNMENT CONTEXT (analyze this only):",
     merged,
+    "",
+    "REFERENCE EXAMPLES (for calibration; never copy content):",
+    examplesText,
   ].join("\n");
 
   try {
-    const res = await model.generateContent([{ text: prompt }]);
+    const res = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
     const txt = res.response.text();
 
-    let parsed = JSON.parse(txt) as LLMEstimate;
-
-    // ---- Post-parse sanity & normalization ----
-    // Clamp score to [0,10]
-    if (typeof parsed.score !== "number" || Number.isNaN(parsed.score)) {
-      parsed.score = 5; // neutral default
-    } else {
-      parsed.score = Math.max(0, Math.min(10, parsed.score));
-      parsed.score = Math.round(parsed.score * 10) / 10;
+    // ---- Parse JSON, even if wrapped ----
+    let parsed: Partial<LLMEstimate> = {};
+    try {
+      parsed = JSON.parse(txt);
+    } catch {
+      const m = txt.match(/\{[\s\S]*\}$/);
+      if (m) parsed = JSON.parse(m[0]);
     }
 
-    // Ensure estimatedTime is reasonable (>= 0.5h)
-    if (typeof parsed.estimatedTime !== "number" || Number.isNaN(parsed.estimatedTime)) {
-      parsed.estimatedTime = 3; // sensible default
-    } else {
-      parsed.estimatedTime = Math.max(0.5, parsed.estimatedTime);
-      parsed.estimatedTime = Math.round(parsed.estimatedTime * 10) / 10;
-    }
+    // ---- Post-parse guards & consistency ----
+    const clamp = (n: number, lo: number, hi: number) =>
+      Math.max(lo, Math.min(hi, n));
 
-    // Map difficulty from score if missing or inconsistent
-    const s = parsed.score;
-    const band =
-      s <= 2 ? "very_easy" :
-      s <= 4 ? "easy" :
-      s <= 6 ? "medium" :
-      s <= 8 ? "hard" : "very_hard";
+    const safeScore =
+      typeof parsed.score === "number" && Number.isFinite(parsed.score)
+        ? clamp(Math.round(parsed.score * 10) / 10, 0, 10)
+        : 5;
 
-    if (!parsed.difficulty || !["very_easy","easy","medium","hard","very_hard"].includes(parsed.difficulty)) {
-      parsed.difficulty = band as LLMEstimate["difficulty"];
-    }
+    let safeTime =
+      typeof parsed.estimatedTime === "number" && Number.isFinite(parsed.estimatedTime)
+        ? Math.max(0.5, Math.round(parsed.estimatedTime * 10) / 10)
+        : 3;
 
-    return {
-      summary: parsed.summary || "No summary provided.",
-      estimatedTime: parsed.estimatedTime,
-      score: parsed.score,
-      difficulty: parsed.difficulty,
-    };
-  } catch {
-    // Conservative fallback
+    // Always derive difficulty label from score to guarantee consistency.
+    const label =
+      safeScore <= 2
+        ? "very_easy"
+        : safeScore <= 4
+          ? "easy"
+          : safeScore <= 6
+            ? "medium"
+            : safeScore <= 8
+              ? "hard"
+              : "very_hard";
+
     return {
       summary:
-        "Could not confidently analyze this assignment from the provided context.",
-      estimatedTime: 3,
-      score: 5,
-      difficulty: "medium",
+        (parsed.summary && String(parsed.summary).trim()) ||
+        // If model somehow returned an empty summary (shouldn't), backstop it:
+        (hasDesc || hasPdf ? "Summary unavailable." : "No description available."),
+      estimatedTime: safeTime,
+      score: safeScore,
+      difficulty: label as LLMEstimate["difficulty"],
+    };
+  } catch {
+    // Conservative fallback (model error)
+    return {
+      summary: hasDesc || hasPdf ? "Summary unavailable." : "No description available.",
+      estimatedTime: hasDesc || hasPdf ? 3 : 0,
+      score: hasDesc || hasPdf ? 5 : 0,
+      difficulty: hasDesc || hasPdf ? "medium" : "very_easy",
     };
   }
 }
