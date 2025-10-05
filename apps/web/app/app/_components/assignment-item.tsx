@@ -103,6 +103,7 @@ export default function AssignmentItem({
       {/* header */}
       <div className="flex items-stretch justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-3">
+
           {/* # ranking */}
           <div className="shrink-0 grid place-items-center rounded-xl border border-zinc-800/70 bg-zinc-900/60 px-2.5 py-1.5 text-[11px] text-zinc-300">
             <span className="font-medium">#{rank}</span>
@@ -154,10 +155,15 @@ export default function AssignmentItem({
         {/* difficulty score */}
         <div className="shrink-0 self-center">
           <div
-            className={`grid h-14 w-14 place-items-center rounded-xl border ${colors[difficulty].pill}`}
+            className={`grid h-15 w-16 place-items-center rounded-xl border ${colors[difficulty].pill}`}
           >
-            <span className="text-xl font-extrabold tabular-nums">{score}</span>
+            <span className="text-xl font-extrabold tabular-nums">
+              {score}
+              <span className="text-[0.9em] mx-0.5">/</span>
+              10
+            </span>
           </div>
+          <div className="mt-2 text-xs text-muted-foreground text-center uppercase">Difficulty</div>
         </div>
 
         
