@@ -151,7 +151,7 @@ export default function AssignmentItem({
         {/* difficulty score */}
         <div className="shrink-0 self-center">
           <div
-            className={`grid h-15 w-18 place-items-center rounded-xl border ${colors[difficulty].pill}`}
+            className={`grid h-15 w-17 place-items-center rounded-xl border ${colors[difficulty].pill}`}
           >
             <span className="text-[19px] font-extrabold tabular-nums">
               {score}/10
