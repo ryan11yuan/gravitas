@@ -11,13 +11,9 @@ import { formatDue } from "../_utils/format";
 import { extractText } from "@/lib/content-extraction";
 
 type AIEstimate = {
-  /** 0–100 numeric difficulty from Gemini */
   score: number;
-  /** mapped level label (we’ll derive if not provided) */
   level?: "Easy" | "Medium" | "Hard";
-  /** estimated time to complete (in hours) */
   etaHours?: number;
-  /** model summary/explanation */
   summary?: string;
 };
 

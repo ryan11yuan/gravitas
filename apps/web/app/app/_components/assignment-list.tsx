@@ -46,7 +46,7 @@ export default function AssignmentList({
   }, [assignments, query, sortMode, onlyUpcoming]);
 
   return (
-    <div className="max-w-5xl space-y-3">
+    <div className="max-w-[68rem] space-y-3">
       <ControlsBar
         query={query}
         setQuery={setQuery}
