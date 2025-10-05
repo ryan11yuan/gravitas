@@ -50,8 +50,6 @@ export async function extractPdfs(html: string | null): Promise<Array<QuercusFil
         headers: { Accept: "application/pdf" },
       });
 
-      console.log(res)
-
       if (!res.success || typeof res.data !== "string") return null;
 
       try {

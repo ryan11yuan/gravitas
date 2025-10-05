@@ -2,7 +2,10 @@
 
 import { isCrowdmarkAuthenticated as isCrowdmarkAuthenticated } from "@/lib/crowdmark-client";
 import { getQuercusUser, isQuercusAuthenticated } from "@/lib/quercus-client";
-import getAssignments, { BaseAssignment } from "@/lib/assignments";
+import getAssignments, {
+  AnalyzedAssignment,
+  BaseAssignment,
+} from "@/lib/assignments";
 
 import {
   SidebarInset,
@@ -22,7 +25,9 @@ import { analyzeAssignment } from "@/lib/ai";
 export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<QuercusUser | null>(null);
-  const [assignments, setAssignments] = useState<BaseAssignment[] | null>(null);
+  const [assignments, setAssignments] = useState<AnalyzedAssignment[] | null>(
+    null
+  );
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -70,34 +75,47 @@ export default function Page() {
   }, [router]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const preFetch = async () => {
       try {
-        const res = await getAssignments();
-        const target = res.find(
-          (a) => a.title?.trim().toLowerCase() === "Assignment 1".toLowerCase() && a.course === "CSCA08H3 F 20259:Introduction to Computer Science I"
+        const raw = await getAssignments(); // BaseAssignment[]
+        if (cancelled) return;
+
+        // Kick off all analyses in parallel, but don’t explode on a single failure.
+        const analyzed = await Promise.all(
+          raw.map(async (a) => {
+            try {
+              const analysis = await analyzeAssignment({
+                title: a.title,
+                descriptionHtml: a.description ?? null,
+                dueAtISO: a.dueAt ?? null,
+                course: a.course ?? null,
+              });
+
+              return { ...a, analysis } as AnalyzedAssignment;
+            } catch {
+              // fall back to null analysis on error
+              return { ...a, analysis: null } as AnalyzedAssignment;
+            }
+          })
         );
 
-        if (!target) return;
-
-        const ctx = {
-          title: target.title,
-          descriptionHtml: target.description ?? null,
-          dueAtISO: target.dueAt ?? null,
-          course: target.course ?? null,
-        };
-
-        const est = await analyzeAssignment(ctx);
-        console.log(est);
-        setAssignments(res);
+        if (!cancelled) setAssignments(analyzed);
       } catch (e: any) {
-        setAssignments([]);
-        setError(e?.message || "Failed to load assignments");
+        if (!cancelled) {
+          setAssignments([]);
+          setError(e?.message || "Failed to load assignments");
+        }
       }
     };
 
     preFetch();
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
+  
   if (isLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
@@ -108,7 +126,7 @@ export default function Page() {
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user!} />
+      <AppSidebar user={user!} assignments={assignments} />
       <SidebarInset>
         <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4 bg-background/70 backdrop-blur-md">
           <SidebarTrigger className="-ml-1" />

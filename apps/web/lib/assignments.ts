@@ -17,6 +17,7 @@ import type {
   CrowdmarkAssignmentsResponse,
   CrowdmarkCourseStatistics,
 } from "@/common/types/crowdmark";
+import { LLMEstimate } from "./ai";
 
 export interface BaseAssignment {
   id: string;
@@ -29,6 +30,10 @@ export interface BaseAssignment {
   graded?: boolean;
   average?: number | null;
 }
+
+export type AnalyzedAssignment = BaseAssignment & {
+  analysis: LLMEstimate | null;
+};
 
 const DEFAULT_QUERCUS_AVG = 78;
 

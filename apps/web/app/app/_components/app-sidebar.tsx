@@ -15,6 +15,7 @@ import { DatePicker } from "./date-picker";
 import Dates from "./dates";
 import { NavUser } from "./nav-user";
 import { QuercusUser } from "@/common/types/quercus";
+import { AnalyzedAssignment } from "@/lib/assignments";
 
 // This is sample data.
 const data = {
@@ -39,7 +40,9 @@ const data = {
   ],
 };
 
-export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sidebar> & {user: QuercusUser}) {
+export function AppSidebar({ user, assignments, ...props }: React.ComponentProps<typeof Sidebar> & {user: QuercusUser, assignments: AnalyzedAssignment[] | null}) {
+  const [selected, setSelected] = React.useState<Date | undefined>(undefined);
+  
   return (
     <Sidebar {...props}>
       <SidebarHeader className="border-sidebar-border h-16 border-b">
@@ -50,8 +53,12 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
         }} />
       </SidebarHeader>
       <SidebarContent className="gap-0">
-        <DatePicker />
-        <Dates />
+        <DatePicker
+          assignments={assignments}
+          selected={selected}
+          onSelect={(d) => setSelected(d ?? undefined)}
+        />
+        <Dates assignments={assignments} selectedDate={selected} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
