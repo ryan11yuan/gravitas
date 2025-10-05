@@ -2,8 +2,11 @@
 
 import { useState, type KeyboardEvent } from "react";
 import { Calendar, Clock, Award, TrendingUp } from "lucide-react";
-import { computePriorityScore, pickDifficultyFromScore } from "../_utils/priority";
-import type { BaseAssignment } from "@/lib/assignments";
+import {
+  computePriorityScore,
+  pickDifficultyFromScore,
+} from "../_utils/priority";
+import type { AnalyzedAssignment, BaseAssignment } from "@/lib/assignments";
 import { formatDue } from "../_utils/format";
 import { extractText } from "@/lib/content-extraction";
 
@@ -23,22 +26,18 @@ export default function AssignmentItem({
   rank,
   ai,
 }: {
-  a: BaseAssignment;
+  a: AnalyzedAssignment;
   rank: number;
-  ai?: AIEstimate; 
+  ai?: AnalyzedAssignment["analysis"];
 }) {
   const [open, setOpen] = useState(false);
 
-  // If AI score exists, prefer it; else fall back to your local priority score
-  const score = typeof ai?.score === "number" ? Math.round(ai.score) : computePriorityScore(a.dueAt, a.points);
-
-  // Pick difficulty label from AI score (or use provided ai.level), else from local score
-  const difficulty =
-    ai?.level ??
-    pickDifficultyFromScore(typeof ai?.score === "number" ? ai.score : score);
+  const score = ai?.score;
+  const difficulty = ai?.difficulty ?? "medium";
 
   const dueText = formatDue(a.dueAt) ? formatDue(a.dueAt) : "No due date";
-  const srcLabel = a.src === "quercus" ? "Quercus assignment" : "Crowdmark assignment";
+  const srcLabel =
+    a.src === "quercus" ? "Quercus assignment" : "Crowdmark assignment";
 
   const youPct =
     typeof a.points === "number"
@@ -46,13 +45,39 @@ export default function AssignmentItem({
         ? `${Math.round(a.points * 100)}%`
         : `${a.points} pts`
       : "—";
-  const classAvg = typeof a.average === "number" ? `${Math.round(a.average)}%` : "—";
+  const classAvg =
+    typeof a.average === "number" ? `${Math.round(a.average)}%` : "—";
 
   const colors = {
-    Easy:   { bar: "border-emerald-600/50", chip: "text-emerald-400 bg-emerald-900/15 border-emerald-800/60", pill: "border-emerald-900/50 bg-emerald-900/20 text-emerald-400" },
-    Medium: { bar: "border-amber-600/60",   chip: "text-amber-300 bg-amber-900/15 border-amber-800/60",     pill: "border-amber-900/50 bg-amber-900/20 text-amber-300"   },
-    Hard:   { bar: "border-red-600/60",     chip: "text-red-300 bg-red-900/15 border-red-800/60",           pill: "border-red-900/50 bg-red-900/20 text-red-300"         },
-  } as const;
+    very_easy: {
+      bar: "border-emerald-500/50",
+      chip: "text-emerald-300 bg-emerald-900/10 border-emerald-800/50",
+      pill: "border-emerald-900/40 bg-emerald-900/15 text-emerald-300",
+    },
+    easy: {
+      bar: "border-emerald-600/50",
+      chip: "text-emerald-400 bg-emerald-900/15 border-emerald-800/60",
+      pill: "border-emerald-900/50 bg-emerald-900/20 text-emerald-400",
+    },
+    medium: {
+      bar: "border-amber-600/60",
+      chip: "text-amber-300 bg-amber-900/15 border-amber-800/60",
+      pill: "border-amber-900/50 bg-amber-900/20 text-amber-300",
+    },
+    hard: {
+      bar: "border-red-600/60",
+      chip: "text-red-300 bg-red-900/15 border-red-800/60",
+      pill: "border-red-900/50 bg-red-900/20 text-red-300",
+    },
+    very_hard: {
+      bar: "border-red-700/70",
+      chip: "text-red-200 bg-red-900/20 border-red-800/70",
+      pill: "border-red-900/60 bg-red-900/25 text-red-200",
+    },
+  } as const satisfies Record<
+    "very_easy" | "easy" | "medium" | "hard" | "very_hard",
+    { bar: string; chip: string; pill: string }
+  >;
 
   const sectionId = `stats-${a.id}`;
   const toggle = () => setOpen((v) => !v);
@@ -74,12 +99,10 @@ export default function AssignmentItem({
       className={`ml-5 group relative cursor-pointer select-none rounded-2xl border border-zinc-800/70 bg-zinc-950/70
       backdrop-blur-sm transition-colors hover:border-zinc-700/70
       p-5 md:p-6 pl-7 md:pl-8 ${colors[difficulty].bar}`}
-
     >
       {/* header */}
       <div className="flex items-stretch justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-3">
-
           {/* # ranking */}
           <div className="shrink-0 grid place-items-center rounded-xl border border-zinc-800/70 bg-zinc-900/60 px-2.5 py-1.5 text-[11px] text-zinc-300">
             <span className="font-medium">#{rank}</span>
@@ -113,24 +136,26 @@ export default function AssignmentItem({
                 <span>{a.dueAt ? "Scheduled" : "TBD"}</span>
               </span>
 
-              {typeof ai?.etaHours === "number" && (
-                <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span className="tabular-nums">ETA ~{Math.max(0, ai.etaHours).toFixed(1)}h</span>
-                </span>
-              )}
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
+                <Clock className="h-3.5 w-3.5" />
+                <span className="tabular-nums">ETA ~{ai?.estimatedTime}h</span>
+              </span>
             </div>
 
             {/* description / AI summary */}
             <p className="mt-2 text-[13px] leading-snug text-zinc-400 line-clamp-2">
-              {ai?.summary?.trim() || extractText(a.description?.trim() ?? "") || srcLabel}
+              {ai?.summary?.trim() ||
+                extractText(a.description?.trim() ?? "") ||
+                srcLabel}
             </p>
           </div>
         </div>
 
         {/* difficulty score */}
         <div className="shrink-0 self-center">
-          <div className={`grid h-14 w-14 place-items-center rounded-xl border ${colors[difficulty].pill}`}>
+          <div
+            className={`grid h-14 w-14 place-items-center rounded-xl border ${colors[difficulty].pill}`}
+          >
             <span className="text-xl font-extrabold tabular-nums">{score}</span>
           </div>
         </div>
@@ -140,7 +165,9 @@ export default function AssignmentItem({
       <div
         id={sectionId}
         className={`ml-15 overflow-hidden transition-[grid-template-rows,opacity] duration-200 ease-out ${
-          open ? "grid grid-rows-[1fr] opacity-100" : "grid grid-rows-[0fr] opacity-0"
+          open
+            ? "grid grid-rows-[1fr] opacity-100"
+            : "grid grid-rows-[0fr] opacity-0"
         }`}
       >
         <div className="min-h-0">
