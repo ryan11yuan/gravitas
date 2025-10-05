@@ -138,7 +138,7 @@ export default function AssignmentItem({
 
               <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-800/70 bg-zinc-900/50 px-2 py-1">
                 <Clock className="h-3.5 w-3.5" />
-                <span className="tabular-nums">ETA ~{ai?.estimatedTime}h</span>
+                <span className="tabular-nums">Estimated Time Needed ~{ai?.estimatedTime}h</span>
               </span>
             </div>
 
