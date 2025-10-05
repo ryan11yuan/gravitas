@@ -78,7 +78,7 @@ export async function analyzeAssignment(
     "- estimatedTime: hours to complete (planning + work + review).",
     "- score: expected percentage if the student works at an average pace.",
     "- difficulty: one of very_easy, easy, medium, hard, very_hard.",
-    "",
+    "follow ./examples.txt for guidance",
     "Assignment Context:",
     merged
   ].join("\n");
